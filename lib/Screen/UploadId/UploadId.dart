@@ -2,9 +2,12 @@
 
 import 'dart:io';
 
+import 'package:courier_application/Provider/UploadIdProvider.dart';
 import 'package:courier_application/Widgets/DrawerSide.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../../EditField/Colors.dart';
 class UploadId extends StatefulWidget {
@@ -18,19 +21,29 @@ class _UploadIdState extends State<UploadId> {
    File? imageFile ;
   @override
   Widget build(BuildContext context) {
+    UploadIdProvider uploadIdProvider = Provider.of(context);
     return Scaffold(
       drawer: DrawerSide(),
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(bottom: 20),
 
-        child: MaterialButton(
-          onPressed: (){
-
-          },
-          child: Text("Upload ID" , style: TextStyle(fontWeight: FontWeight.bold, color:  textColor),),
-          color: primaryColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 20,right: 20),
+          child: MaterialButton(
+            height: 45,
+            onPressed: (){
+                   if(imageFile!.path == null){
+                     Fluttertoast.showToast(msg: "Please Add The Id");
+                   }
+                   else{
+                     uploadIdProvider.UserUploadId(context, imageFile!, 0);
+                   }
+            },
+            child: Text("UPLOAD ID" , style: TextStyle(fontWeight: FontWeight.bold, color:  textColor , fontSize: 18),),
+            color: primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
           ),
         ),
       ),
@@ -50,7 +63,7 @@ class _UploadIdState extends State<UploadId> {
               },
               child: CircleAvatar(
                 radius: 150.0,
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.white54,
                 child: ClipRRect(
                   child:imageFile != null
                       ? Image.file(

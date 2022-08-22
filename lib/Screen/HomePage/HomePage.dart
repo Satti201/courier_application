@@ -15,6 +15,7 @@ import '../../Widgets/DrawerSide.dart';
 import '../Login/LoginScreen.dart';
 import '../Parcel/AddParcel.dart';
 import '../Parcel/Parcel.dart';
+import '../UploadId/UploadId.dart';
 
 
 
@@ -160,17 +161,23 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 12,top: 22,bottom: 22,left: 11),
-                      child: Card(
-                        child: ListTile(
-                            title: FlatButton.icon(
-                                onPressed: null,
-                                icon: Icon(Icons.track_changes),
-                                label: Text("Products")),
-                            subtitle: Text(
-                              '${0}',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: active, fontSize: 40.0),
-                            )),
+                      child: InkWell(
+                        onTap: (){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> UploadId()));
+
+                        },
+                        child: Card(
+                          child: ListTile(
+                              title: FlatButton.icon(
+                                  onPressed: null,
+                                  icon: Icon(Icons.track_changes),
+                                  label: Text("Add ID")),
+                              subtitle: Text(
+                                '${0}',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: active, fontSize: 40.0),
+                              )),
+                        ),
                       ),
                     ),
                     Padding(

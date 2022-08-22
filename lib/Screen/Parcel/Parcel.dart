@@ -28,18 +28,20 @@ class _ParcelState extends State<Parcel> {
           itemCount: parcelProvider.getReviewCartData.length,
           itemBuilder: (context,index) {
             ParcelData parcelData = parcelProvider.getReviewCartData[index];
-            return Column(
-              children: [
-                SizedBox(height: 10,),
-                SingleParcelItem(
-                  parcelData.ParcelName,
-                  parcelData.PickUpAddress,
-                  parcelData.RecieverAddress,
-                  parcelData.orderid,
-                  parcelData.ParcelPrice,
+            return Expanded(
+              child: Column(
+                children: [
+                  SizedBox(height: 10,),
+                  SingleParcelItem(
+                    parcelData.ParcelName,
+                    parcelData.PickUpAddress,
+                    parcelData.RecieverAddress,
+                    parcelData.orderid,
+                    parcelData.ParcelPrice,
 
-                ),
-              ],
+                  ),
+                ],
+              ),
             );
           }
       ),

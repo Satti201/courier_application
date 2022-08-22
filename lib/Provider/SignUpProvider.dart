@@ -71,6 +71,8 @@ class SignUpProvider with ChangeNotifier{
               "password" : password.text,
               "PhoneNo" : PhoneNo.text,
               "Gender" : Gender,
+              "is_admin" : "0",
+              "Status" : "0"
             }
         ).then((value) async {
           isloading = false;

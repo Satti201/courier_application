@@ -79,17 +79,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       height: 20,
                     ),
 
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: EntryPoint(
-                        title: "Admin",
-                        lottiePath: "assets/lottieFiles/home-delivery.json",
-                        path: Routes.Admin1,
-                      ),
-                    ),
+                    // SizedBox(
+                    //   height: 30,
+                    // ),
+                    // Align(
+                    //   alignment: Alignment.center,
+                    //   child: EntryPoint(
+                    //     title: "Admin",
+                    //     lottiePath: "assets/lottieFiles/home-delivery.json",
+                    //     path: Routes.Admin1,
+                    //   ),
+                    // ),
                     SizedBox(
                       height: 20,
                     ),

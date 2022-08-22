@@ -28,12 +28,14 @@ class AddParcel extends StatefulWidget {
 
 class _AddParcelState extends State<AddParcel> {
 
+
   final isLoading = false;
   AllUserData? value;
   TimeOfDay selectedTime = TimeOfDay.now();
   late ParcelProvider parcelProvider1;
   late SignInProvider  signInProvider ;
   List<AllUserData> allList =[];
+  late int count ;
 
 
 
@@ -42,11 +44,16 @@ class _AddParcelState extends State<AddParcel> {
     // TODO: implement initState
     super.initState();
 
+
   }
+  bool get hasFocus => false;
 
   @override
   Widget build(BuildContext context) {
    parcelProvider1 = Provider.of(context);
+   parcelProvider1.getParcelData();
+   count = parcelProvider1.getReviewCartData.length;
+   count = count + 1;
 
 
     return Scaffold(
@@ -74,10 +81,16 @@ class _AddParcelState extends State<AddParcel> {
                   child: HeaderText("Add Parcel"),
                 ),
                 const SizedBox(height: kDefaultSpacing * 1.5),
-                TextField(
-                  controller: parcelProvider1.ParcelOrderId,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.next,
+                TextFormField(
+                  key: Key(count.toString()),
+                  enableInteractiveSelection: false,
+                  onTap: (){
+                    setState(() {
+                      TextEditingController().text=count.toString();
+                    });
+                  },
+                  initialValue: count.toString(),
+                  readOnly: true,
                   decoration: const InputDecoration(
                     icon: Icon(Icons.person),
                     hintText: "Order Id",
@@ -147,7 +160,7 @@ class _AddParcelState extends State<AddParcel> {
 
                   DropdownButtonHideUnderline(
                     child:  DropdownButton<AllUserData>(
-                      hint: const Text('All'),
+                      hint: const Text('Select User ID'),
                       dropdownColor: Colors.white,
                       value: value,
                       icon: const Icon(Icons.keyboard_arrow_down),
@@ -184,7 +197,7 @@ class _AddParcelState extends State<AddParcel> {
                     ),
                   ),
                   onPressed: (){
-                     parcelProvider1.AddParcel(context , value!.UserId);
+                     parcelProvider1.AddParcel(context , value!.UserId , count);
                   },
                   child: const Text("Add Parcel"),
                 ),
@@ -195,7 +208,9 @@ class _AddParcelState extends State<AddParcel> {
         ),
       ),
     );
+
   }
+
   _selectTime(BuildContext context) async {
     final TimeOfDay? timeOfDay = await showTimePicker(
       context: context,

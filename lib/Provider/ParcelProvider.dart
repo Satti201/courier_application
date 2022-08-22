@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:courier_application/Screen/HomePage/HomePage.dart';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../Models/ParcelData.dart';
@@ -22,7 +24,7 @@ class ParcelProvider with ChangeNotifier {
 
 
 
-  void AddParcel(context ,String RecieverId) async {
+  void AddParcel(context ,String RecieverId , int Count) async {
     if (ParcelName.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelName is Empty");
     }
@@ -32,17 +34,18 @@ class ParcelProvider with ChangeNotifier {
 
     else {
       await FirebaseFirestore.instance.collection("ParcelData").doc(
-          ParcelOrderId.text.toString()).set(
+          Count.toString()).set(
         {
           "PickUpId": SignInProvider.UserId,
           "ParcelName": ParcelName.text,
           "PickUpAddress": PickUpAddress.text,
-          "OrderId": int.parse(ParcelOrderId.text),
+          "OrderId": Count,
           "RecieverId": RecieverId,
           "ReceiverAddress": ReciverAddress.text,
           "ParcelPrice": ParcelPrice.text,
           "Time": Time.text,
-          "ParcelStatus": 0
+          "ParcelStatus": 0,
+          "RiderId": ""
         },
       ).then((value) async {
         isloading = false;
@@ -54,7 +57,7 @@ class ParcelProvider with ChangeNotifier {
         ParcelName.clear();
         PickUpAddress.clear();
         ParcelOrderId.clear();
-        Navigator.of(context).pop();
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> HomePage()));
       });
     }
   }

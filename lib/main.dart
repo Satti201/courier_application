@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'Provider/ParcelProvider.dart';
 import 'Provider/SignInProvider.dart';
 import 'Provider/SignUpProvider.dart';
+import 'Provider/UploadIdProvider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<SignInProvider>(
           create:(context)=>SignInProvider(),
+        ),
+        ChangeNotifierProvider<UploadIdProvider>(
+          create:(context)=>UploadIdProvider(),
         ),
         ChangeNotifierProvider<SignUpProvider>(
           create:(context)=>SignUpProvider(),
