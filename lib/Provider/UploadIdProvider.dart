@@ -13,7 +13,7 @@ import 'SignInProvider.dart';
 import 'package:http/http.dart' as http;
 
 class UploadIdProvider with ChangeNotifier {
-  int status = 0;
+  late int status ;
   int hasData =0;
   String message = "";
   String expTime="";
@@ -63,6 +63,7 @@ class UploadIdProvider with ChangeNotifier {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
       if (UserId == data['UserId']) {
         status = data['Status'];
+        print(status);
       }
     }
     return status;

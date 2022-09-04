@@ -1,5 +1,7 @@
+import 'dart:ffi';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:courier_application/Provider/SignInProvider.dart';
 import 'package:courier_application/Provider/UploadIdProvider.dart';
 import 'package:courier_application/RoughWork/GoogleMap/UserGoogleMap.dart';
@@ -35,13 +37,16 @@ class SingleParcelItem extends StatefulWidget {
 class _SingleParcelItemState extends State<SingleParcelItem> {
   var _storedImage;
   double? longitude;
+  bool valcheck = false;
   double? latitude;
   File? imageFile;
   PickedFile? pickedFile;
+  int Status = -0;
   bool val = false;
   Widget build(BuildContext context) {
     SignUpProvider passportId = Provider.of(context);
     UploadIdProvider uploadIdProvider = Provider.of(context);
+    uploadIdProvider.getStatusOfId(SignInProvider.UserId);
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -140,75 +145,87 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                   ),
                 ),
                 onPressed: () async {
-                  print("************************" +
-                      SignInProvider.UserId.toString());
-                  uploadIdProvider.getStatusOfId(SignInProvider.UserId);
-                  print(uploadIdProvider.status.toString() +
-                      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-                  if (uploadIdProvider.status == 0) {
-                    showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Add ID"),
-                            actions: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  FlatButton(
-                                    child: const Text("Go To"),
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const UploadId()));
-                                    },
-                                  ),
-                                  FlatButton(
-                                    child: const Text("NO"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      passportId.Username.text = "";
-                                    },
-                                  ),
-                                ],
-                              )
-                            ],
-                          );
-                        });
-                  } else if (uploadIdProvider.status == 1) {
-                    getCurrentPosition();
-                    if (latitude == null && longitude == null) {
-                      Fluttertoast.showToast(msg: "Invalid Location");
-                      List<Location> locations = await locationFromAddress(
-                          "Gronausestraat 710, Enschede");
-                    } else {
-                      final queryPickupAddress = widget.PickupAddress.toString();
-                      var addresses = await Geocoder.local
-                          .findAddressesFromQuery(queryPickupAddress);
-                      var PickUpfirst = addresses.first;
 
-                      final queryDestinationAddress =
-                          widget.RecieverAddress.toString();
-                      var addresses1 = await Geocoder.local
-                          .findAddressesFromQuery(queryDestinationAddress);
-                      var RecieverAddressfirst = addresses1.first;
 
-                      print(
-                          "${PickUpfirst.featureName} : ${PickUpfirst.coordinates}");
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => UserGoogleMap(
-                              widget.time.toString(),
-                              latitude.toString(),
-                              longitude.toString(),
-                              "Username",
-                              PickUpfirst.coordinates.latitude,
-                              PickUpfirst.coordinates.longitude,
-                              RecieverAddressfirst.coordinates.latitude,
-                              RecieverAddressfirst.coordinates.longitude)));
-                    }
+
+                  if(valcheck == false) {
+                    await  getCurrentPosition();
+                    await  uploadIdProvider.getStatusOfId(SignInProvider.UserId);
+                   valcheck = true;
                   }
+                  if(valcheck == true)
+                    {
+                      if (uploadIdProvider.status == 0) {
+                        showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Add ID"),
+                                actions: <Widget>[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      FlatButton(
+                                        child: const Text("Go To"),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                  const UploadId()));
+                                        },
+                                      ),
+                                      FlatButton(
+                                        child: const Text("NO"),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          passportId.Username.text = "";
+                                        },
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              );
+                            });
+                      }
+                      else if (uploadIdProvider.status == 1) {
+
+                        if (latitude == null && longitude == null) {
+                          Fluttertoast.showToast(msg: "Invalid Location");
+                        }
+                        else {
+                          final queryPickupAddress = widget.PickupAddress.toString();
+                          var addresses = await Geocoder.local
+                              .findAddressesFromQuery(queryPickupAddress);
+                          var PickUpfirst = addresses.first;
+
+                          final queryDestinationAddress =
+                          widget.RecieverAddress.toString();
+                          var addresses1 = await Geocoder.local
+                              .findAddressesFromQuery(queryDestinationAddress);
+                          var RecieverAddressfirst = addresses1.first;
+
+                          print(
+                              "${PickUpfirst.featureName} : ${PickUpfirst.coordinates}");
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => UserGoogleMap(
+                                  widget.time.toString(),
+                                  latitude.toString(),
+                                  longitude.toString(),
+                                  "Username",
+                                  PickUpfirst.coordinates.latitude,
+                                  PickUpfirst.coordinates.longitude,
+                                  RecieverAddressfirst.coordinates.latitude,
+                                  RecieverAddressfirst.coordinates.longitude)));
+                        }
+                      }
+
+                    }
+
+
+
+
+
                 },
                 child: const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -289,5 +306,21 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
           " longitude" +
           longitude.toString());
     }
+
+
+
+
   }
+  Future  getStatusOfId(String UserId) async {
+    var collection = FirebaseFirestore.instance.collection('UserUploadId');
+    var querySnapshot = await collection.get();
+    for (var queryDocumentSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> data = queryDocumentSnapshot.data();
+      if (UserId == data['UserId']) {
+        Status = data['Status'];
+        print(Status);
+      }
+    }
+  }
+
 }

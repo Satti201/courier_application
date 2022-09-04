@@ -88,7 +88,7 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
     //_markers.addAll(list);
     startTimer();
     reset();
-    //loadData();
+    loadData();
   }
 
   void stopTimer({bool resets = true}) {
@@ -123,20 +123,114 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
   }
 
   loadData() {
+    // _getUserCurrentLocation().then((value) async {
+    //   _markers.add(Marker(
+    //       markerId: const MarkerId('SomeId'),
+    //       position: LatLng(value.latitude, value.longitude),
+    //       infoWindow: InfoWindow(title: address)));
+    //
+    //   final GoogleMapController controller = await _controller.future;
+    //   CameraPosition _kGooglePlex = CameraPosition(
+    //     target: LatLng(value.latitude, value.longitude),
+    //     zoom: 14,
+    //   );
+    //   controller.animateCamera(CameraUpdate.newCameraPosition(_kGooglePlex));
+    //   setState(() {});
+    // });
+
     _getUserCurrentLocation().then((value) async {
       _markers.add(Marker(
-          markerId: const MarkerId('SomeId'),
-          position: LatLng(value.latitude, value.longitude),
-          infoWindow: InfoWindow(title: address)));
+          markerId: const MarkerId('CurrentId'),
+          position: LatLng(double.parse(widget.latitude),
+              double.parse(widget.Longitude)),
+          infoWindow: InfoWindow(title: address),
+          icon: await BitmapDescriptor.fromAssetImage(
+              const ImageConfiguration(
+                  devicePixelRatio: 2.0),
+              'assets/driving_pin.png'),
+          onTap: () {
+            setState(() {
+              sourcePinInfo = PinInformation(
+                  locationName:
+                  " ${widget.Username} Location",
+                  location: SOURCE_LOCATION,
+                  pinPath: "assets/driving_pin.png",
+                  avatarPath: "assets/1.jpg",
+                  labelColor: Colors.blueAccent);
+              currentlySelectedPin = sourcePinInfo;
+              pinPillPosition = 0;
+            });
+          }));
+      _markers.add(Marker(
+          markerId: const MarkerId('PickId'),
+          position: LatLng(widget.picklat, widget.picklon),
+          icon: await BitmapDescriptor.fromAssetImage(
+              const ImageConfiguration(
+                  devicePixelRatio: 2.0),
+              'assets/destination_map_marker.png'),
+          infoWindow: InfoWindow(title: address),
+          onTap: () {
+            setState(() {
+              OriginPinInfo = PinInformation(
+                  locationName: "PICK UP LOCATION",
+                  location: ORIGON_LOCATION,
+                  pinPath: "assets/driving_pin.png",
+                  avatarPath: "assets/1.jpg",
+                  labelColor: Colors.blueAccent);
+              currentlySelectedPin = OriginPinInfo;
+              pinPillPosition = 0;
+            });
+          }));
 
-      final GoogleMapController controller = await _controller.future;
+      _markers.add(Marker(
+        markerId: const MarkerId('DestId'),
+        position: LatLng(widget.reciverlat, widget.reclon),
+        infoWindow: InfoWindow(title: address),
+        onTap: () {
+          setState(() {
+            destinationPinInfo = PinInformation(
+                locationName: "DROP OFF LOCATION",
+                location: DESTINATION_LOCATION,
+                pinPath:
+                "assets/destination_map_marker.png",
+                avatarPath: "assets/1.jpg",
+                labelColor: Colors.blueAccent);
+            currentlySelectedPin = destinationPinInfo;
+            pinPillPosition = 0;
+          });
+        },
+        icon: await BitmapDescriptor.fromAssetImage(
+            const ImageConfiguration(devicePixelRatio: 2.0),
+            'assets/destination_map_marker.png'),
+      ));
+
+      final GoogleMapController controller =
+      await _controller.future;
+
       CameraPosition _kGooglePlex = CameraPosition(
-        target: LatLng(value.latitude, value.longitude),
-        zoom: 14,
+        target: LatLng(double.parse(widget.latitude),
+            double.parse(widget.Longitude)),
+        zoom: 16,
       );
-      controller.animateCamera(CameraUpdate.newCameraPosition(_kGooglePlex));
+      controller.animateCamera(
+          CameraUpdate.newCameraPosition(_kGooglePlex));
+
+      List<Placemark> placeMarks =
+      await placemarkFromCoordinates(
+          value.latitude, value.longitude);
+
+      final add = placeMarks.first;
+      address = add.locality.toString() +
+          " " +
+          add.administrativeArea.toString() +
+          " " +
+          add.subAdministrativeArea.toString() +
+          " " +
+          add.country.toString();
+
       setState(() {});
     });
+
   }
 
   @override
@@ -181,25 +275,6 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
         return Future.value(true);
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: buildTime(),
-          centerTitle: true,
-          toolbarHeight: 80.0,
-          toolbarOpacity: 0.8,
-          elevation: 0,
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FloatingActionButton(
-       // elevation: 2.0,
-          backgroundColor: Colors.green,
-          //foregroundColor: Colors.yellowAccent,
-          child: const Icon(Icons.add),
-          // label: const Text('Add Plo'),
-          onPressed: () {},
-      ),
-        ),
         body: SafeArea(
           child: Stack(
             alignment: Alignment.bottomCenter,
@@ -222,137 +297,34 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
               MapPinPillComponent(
                   pinPillPosition: pinPillPosition,
                   currentlySelectedPin: currentlySelectedPin),
-              Container(
-                padding: const EdgeInsets.only(right: 40),
-                height: 80,
-                /*
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(120)),*/
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  direction: Axis.vertical,
-                  /*
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,*/
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        _getUserCurrentLocation().then((value) async {
-                          _markers.add(Marker(
-                              markerId: const MarkerId('CurrentId'),
-                              position: LatLng(double.parse(widget.latitude),
-                                  double.parse(widget.Longitude)),
-                              infoWindow: InfoWindow(title: address),
-                              icon: await BitmapDescriptor.fromAssetImage(
-                                  const ImageConfiguration(
-                                      devicePixelRatio: 2.0),
-                                  'assets/driving_pin.png'),
-                              onTap: () {
-                                setState(() {
-                                  sourcePinInfo = PinInformation(
-                                      locationName:
-                                          " ${widget.Username} Location",
-                                      location: SOURCE_LOCATION,
-                                      pinPath: "assets/driving_pin.png",
-                                      avatarPath: "assets/1.jpg",
-                                      labelColor: Colors.blueAccent);
-                                  currentlySelectedPin = sourcePinInfo;
-                                  pinPillPosition = 0;
-                                });
-                              }));
-                          _markers.add(Marker(
-                              markerId: const MarkerId('PickId'),
-                              position: LatLng(widget.picklat, widget.picklon),
-                              icon: await BitmapDescriptor.fromAssetImage(
-                                  const ImageConfiguration(
-                                      devicePixelRatio: 2.0),
-                                  'assets/destination_map_marker.png'),
-                              infoWindow: InfoWindow(title: address),
-                              onTap: () {
-                                setState(() {
-                                  OriginPinInfo = PinInformation(
-                                      locationName: "PICK UP LOCATION",
-                                      location: ORIGON_LOCATION,
-                                      pinPath: "assets/driving_pin.png",
-                                      avatarPath: "assets/1.jpg",
-                                      labelColor: Colors.blueAccent);
-                                  currentlySelectedPin = OriginPinInfo;
-                                  pinPillPosition = 0;
-                                });
-                              }));
-
-                          _markers.add(Marker(
-                            markerId: const MarkerId('DestId'),
-                            position: LatLng(widget.reciverlat, widget.reclon),
-                            infoWindow: InfoWindow(title: address),
-                            onTap: () {
-                              setState(() {
-                                destinationPinInfo = PinInformation(
-                                    locationName: "DROP OFF LOCATION",
-                                    location: DESTINATION_LOCATION,
-                                    pinPath:
-                                        "assets/destination_map_marker.png",
-                                    avatarPath: "assets/1.jpg",
-                                    labelColor: Colors.blueAccent);
-                                currentlySelectedPin = destinationPinInfo;
-                                pinPillPosition = 0;
-                              });
-                            },
-                            icon: await BitmapDescriptor.fromAssetImage(
-                                const ImageConfiguration(devicePixelRatio: 2.0),
-                                'assets/destination_map_marker.png'),
-                          ));
-
-                          final GoogleMapController controller =
-                              await _controller.future;
-
-                          CameraPosition _kGooglePlex = CameraPosition(
-                            target: LatLng(double.parse(widget.latitude),
-                                double.parse(widget.Longitude)),
-                            zoom: 16,
-                          );
-                          controller.animateCamera(
-                              CameraUpdate.newCameraPosition(_kGooglePlex));
-
-                          List<Placemark> placeMarks =
-                              await placemarkFromCoordinates(
-                                  value.latitude, value.longitude);
-
-                          final add = placeMarks.first;
-                          address = add.locality.toString() +
-                              " " +
-                              add.administrativeArea.toString() +
-                              " " +
-                              add.subAdministrativeArea.toString() +
-                              " " +
-                              add.country.toString();
-
-                          setState(() {});
-                        });
-                      },
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                            color: Colors.deepOrange,
-                            borderRadius: BorderRadius.circular(8)),
-                        child: const Center(
-                            child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            'Locate User',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        )),
-                      ),
-                    ), /*
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(address),
-                    )*/
-                  ],
+              Padding(
+                padding: const EdgeInsets.only(left: 120 , top: 90),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  // add your floating action button
+                  child: Row(
+                    children: [
+                      buildTime(),
+                    ],
+                  ),
                 ),
-              )
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 60,right: 10),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  // add your floating action button
+                  child: SizedBox(
+                    width: 40.0,
+                    height: 40.0,
+                    child: FloatingActionButton(
+
+                      onPressed: () {},
+                      child: Icon(Icons.add , size: 20,),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -380,7 +352,7 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
 
   Widget buildTimeCard({required String time, required String header}) =>
       Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(5),
