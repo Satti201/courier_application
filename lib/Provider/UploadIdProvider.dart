@@ -12,78 +12,86 @@ import '../RoughWork/ConfirmParcel.dart';
 import 'SignInProvider.dart';
 import 'package:http/http.dart' as http;
 
-
 class UploadIdProvider with ChangeNotifier {
-
-
-  int Status=0;
+  int status = 0;
+  int hasData =0;
   String message = "";
+  String expTime="";
 
+  void UserUploadId(context, File Image, int Status) async {
+    DateTime now = DateTime.now();
+    DateTime currDate = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
+    DateTime expDate = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
+    expDate = expDate.add(const Duration(days: 3));
 
+    var request = http.MultipartRequest('POST',
+        Uri.parse('https://kjugmth.sendnow.app/api/ImageAPI/UploadFiles'));
+    request.files.add(await http.MultipartFile.fromPath('', Image.path));
 
-  void UserUploadId(context ,File Image , int Status) async {
-    DateTime now = new DateTime.now();
-    DateTime currDate = new DateTime(now.year, now.month, now.day);
-    DateTime ExpDate = new DateTime(now.year, now.month, now.day);
-    ExpDate =  ExpDate.add(Duration(days: 3));
-    Response response = (await http.post(
-        Uri.parse(
-            'http://Biit_Obe_System_web_api/api/plo_Program/UpdatePlo'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode(""))) as Response;
-    if(response.statusCode == 201 || response.statusCode == 200){
-       message=jsonDecode(response.body);
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      message = await response.stream.bytesToString();
+
+      if (message != null) {
+        String id =
+            FirebaseFirestore.instance.collection('UserUploadId').doc().id;
+        await FirebaseFirestore.instance
+            .collection("UserUploadId")
+            .doc(id)
+            .set({
+          "UploadId": id,
+          "UserId": SignInProvider.UserId,
+          "Curr-Date": currDate.toString(),
+          "Exp-Date": expDate.toString(),
+          "UserImageId": message,
+          "Status": 0,
+        }).then((value) async {
+          await Fluttertoast.showToast(msg: "Upload Id Successfully");
+          Navigator.of(context).pop();
+        });
+      }
+    } else {
+      print(response.reasonPhrase);
     }
-    if(message!=null){
-      String id = FirebaseFirestore.instance.collection('UserUploadId').doc().id;
-      await   FirebaseFirestore.instance.collection("UserUploadId").doc(id).set(
-          {
-            "UploadId" : id,
-            "UserId" : SignInProvider.UserId,
-            "Curr-Date" : currDate.toString(),
-            "Exp-Date"  : ExpDate.toString(),
-            "UserImageId" : message.toString(),
-            "Status" : 0,
-          }
-      ).then((value) async {
-
-        await Fluttertoast.showToast(msg: "Upload Id Successfully");
-        Navigator.of(context).pop();
-
-      });
-    }
-    
-
-
-
   }
-
-
-
 
   Future<int> getStatusOfId(String UserId) async {
-
     var collection = FirebaseFirestore.instance.collection('UserUploadId');
     var querySnapshot = await collection.get();
-    for (var queryDocumentSnapshot
-    in querySnapshot.docs) {
-      Map<String, dynamic> data =
-      queryDocumentSnapshot.data();
-      if(UserId == data['UserId'] )
-      {
-      Status =  data['Status'];
+    for (var queryDocumentSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> data = queryDocumentSnapshot.data();
+      if (UserId == data['UserId']) {
+        status = data['Status'];
       }
-
     }
-  return Status;
+    return status;
+  }
 
+  Future<int> checkData(String userId) async {
+    var collection = FirebaseFirestore.instance.collection('UserUploadId');
+    var querySnapshot = await collection.get();
+    for (var queryDocumentSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> data = queryDocumentSnapshot.data();
+      if (userId == data['UserId']) {
+         hasData= 1;
+         return hasData;
+      }
+    }
+    return hasData;
   }
 
 
-
-
-
-
+  Future<String> fetchExpTime(String userId) async {
+    var collection = FirebaseFirestore.instance.collection('UserUploadId');
+    var querySnapshot = await collection.get();
+    for (var queryDocumentSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> data = queryDocumentSnapshot.data();
+      if (userId == data['UserId']) {
+        expTime= data["Exp-Date"];
+        return expTime;
+      }
+    }
+    return expTime;
+  }
 }

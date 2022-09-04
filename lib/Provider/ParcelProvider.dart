@@ -9,12 +9,8 @@ import '../Models/ParcelData.dart';
 import '../RoughWork/ConfirmParcel.dart';
 import 'SignInProvider.dart';
 
-
 class ParcelProvider with ChangeNotifier {
-
-
   bool isloading = false;
-
   TextEditingController ParcelName = TextEditingController();
   TextEditingController PickUpAddress = TextEditingController();
   TextEditingController ParcelOrderId = TextEditingController();
@@ -22,19 +18,16 @@ class ParcelProvider with ChangeNotifier {
   TextEditingController ReciverAddress = TextEditingController();
   TextEditingController Time = TextEditingController();
 
-
-
-  void AddParcel(context ,String RecieverId , int Count) async {
+  void AddParcel(context, String RecieverId, int Count) async {
     if (ParcelName.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelName is Empty");
-    }
-    else if (PickUpAddress.text.isEmpty) {
+    } else if (PickUpAddress.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelAddress is Empty");
-    }
-
-    else {
-      await FirebaseFirestore.instance.collection("ParcelData").doc(
-          Count.toString()).set(
+    } else {
+      await FirebaseFirestore.instance
+          .collection("ParcelData")
+          .doc(Count.toString())
+          .set(
         {
           "PickUpId": SignInProvider.UserId,
           "ParcelName": ParcelName.text,
@@ -57,28 +50,37 @@ class ParcelProvider with ChangeNotifier {
         ParcelName.clear();
         PickUpAddress.clear();
         ParcelOrderId.clear();
-        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> HomePage()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => HomePage()));
       });
     }
   }
 
-
-  Future <void> UpdateParcelStatus(context, OrderId , int status) async {
-    FirebaseFirestore.instance.collection("ParcelData").doc(OrderId.toString())
-        .update(
-        {
-          'ParcelStatus': status,
-        }
-    );
+  Future<void> UpdateParcelStatus(context, OrderId, int status) async {
+    FirebaseFirestore.instance
+        .collection("ParcelData")
+        .doc(OrderId.toString())
+        .update({
+      'ParcelStatus': status,
+    });
   }
 
-
-  void confirmParcel(context, String Userid, int OrderId, String ParcelName,
-      String Address
-      , String ParcelLat, String ParcelLongitude, String Status, String Time,
-      String CurrentLocation_Lat
-      , String CurrentLocation_Long) async {
-    FirebaseFirestore.instance.collection("ConfirmedParcel").doc(SignInProvider.UserId).set(
+  void confirmParcel(
+      context,
+      String Userid,
+      int OrderId,
+      String ParcelName,
+      String Address,
+      String ParcelLat,
+      String ParcelLongitude,
+      String Status,
+      String Time,
+      String CurrentLocation_Lat,
+      String CurrentLocation_Long) async {
+    FirebaseFirestore.instance
+        .collection("ConfirmedParcel")
+        .doc(SignInProvider.UserId)
+        .set(
       {
         "UserId": Userid,
         "ParcelStatus": Status,
@@ -94,19 +96,18 @@ class ParcelProvider with ChangeNotifier {
     ).then((value) async {
       isloading = false;
       notifyListeners();
-      UpdateParcelStatus(context, OrderId , 1);
+      UpdateParcelStatus(context, OrderId, 1);
       await Fluttertoast.showToast(msg: "Confirmed Parcel Data");
       Navigator.of(context).pop();
     });
   }
 
-
   List<ConfirmParcelData> ConfirmParcelDataList = [];
 
   Future<void> getallconfirmedParcelDetails() async {
     List<ConfirmParcelData> newList = [];
-    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection(
-        "ConfirmedParcel").get();
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection("ConfirmedParcel").get();
     snapshot.docs.forEach((element) {
       ConfirmParcelData CparcelData = ConfirmParcelData(
         element.get("ParcelName"),
@@ -133,39 +134,34 @@ class ParcelProvider with ChangeNotifier {
 
   void getParcelData() async {
     List<ParcelData> newList = [];
-    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection(
-        "ParcelData").get();
-    snapshot.docs.forEach((element) {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection("ParcelData").get();
+    for (var element in snapshot.docs) {
       ParcelData parcelData = ParcelData(
         element.get("ParcelName"),
         element.get('PickUpAddress'),
         element.get('ReceiverAddress'),
         element.get("OrderId"),
         element.get("ParcelPrice"),
-
+        element.get("Time"),
       );
-   newList.add(parcelData);
-    });
+      newList.add(parcelData);
+    }
     ParcelDataList = newList;
     print(ParcelDataList.length);
   }
 
   List<ParcelData> get getReviewCartData {
+    getParcelData();
     return ParcelDataList;
   }
 
-
-
-  deleteParcelData(){
-    FirebaseFirestore.instance.collection("ConfirmedParcel")
+  deleteParcelData() {
+    FirebaseFirestore.instance
+        .collection("ConfirmedParcel")
         .doc(SignInProvider.UserId)
         .delete();
 
     notifyListeners();
-
   }
-
-
-
-
 }

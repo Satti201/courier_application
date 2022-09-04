@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
@@ -15,10 +14,12 @@ import '../../Widgets/DrawerSide.dart';
 import '../../shared_components/async_button.dart';
 import '../../shared_components/header_text.dart';
 import '../Login/LoginScreen.dart';
+
 const kDefaultSpacing = 16.0;
 const kBorderRadius = 16.0;
+
 class AddParcel extends StatefulWidget {
-  List<AllUserData> list ;
+  List<AllUserData> list;
 
   AddParcel(this.list);
 
@@ -27,47 +28,44 @@ class AddParcel extends StatefulWidget {
 }
 
 class _AddParcelState extends State<AddParcel> {
-
-
   final isLoading = false;
   AllUserData? value;
   TimeOfDay selectedTime = TimeOfDay.now();
   late ParcelProvider parcelProvider1;
-  late SignInProvider  signInProvider ;
-  List<AllUserData> allList =[];
-  late int count ;
-
-
+  late SignInProvider signInProvider;
+  List<AllUserData> allList = [];
+  late int count;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-
   }
+
   bool get hasFocus => false;
 
   @override
   Widget build(BuildContext context) {
-   parcelProvider1 = Provider.of(context);
-   parcelProvider1.getParcelData();
-   count = parcelProvider1.getReviewCartData.length;
-   count = count + 1;
-
+    parcelProvider1 = Provider.of(context);
+    parcelProvider1.getParcelData();
+    count = parcelProvider1.getReviewCartData.length;
+    count = count + 1;
 
     return Scaffold(
       drawer: DrawerSide(),
       appBar: AppBar(
         backgroundColor: scaffoldbackgroundColor,
         iconTheme: IconThemeData(color: textColor),
-        title: Text(" Add Parcel", style: TextStyle(color: Colors.black),),
+        title: const Text(
+          " Add Parcel",
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
             padding:
-            const EdgeInsets.symmetric(horizontal: kDefaultSpacing * 2),
+                const EdgeInsets.symmetric(horizontal: kDefaultSpacing * 2),
             child: Column(
               children: [
                 const SizedBox(height: kDefaultSpacing),
@@ -76,17 +74,17 @@ class _AddParcelState extends State<AddParcel> {
                   height: 150,
                 ),
                 const SizedBox(height: kDefaultSpacing),
-                Align(
+                const Align(
                   alignment: Alignment.topLeft,
                   child: HeaderText("Add Parcel"),
                 ),
-                const SizedBox(height: kDefaultSpacing * 1.5),
+                /*const SizedBox(height: kDefaultSpacing * 1.5),
                 TextFormField(
                   key: Key(count.toString()),
                   enableInteractiveSelection: false,
-                  onTap: (){
+                  onTap: () {
                     setState(() {
-                      TextEditingController().text=count.toString();
+                      TextEditingController().text = count.toString();
                     });
                   },
                   initialValue: count.toString(),
@@ -95,7 +93,7 @@ class _AddParcelState extends State<AddParcel> {
                     icon: Icon(Icons.person),
                     hintText: "Order Id",
                   ),
-                ),
+                ),*/
                 const SizedBox(height: kDefaultSpacing * 1.5),
                 TextField(
                   controller: parcelProvider1.ParcelName,
@@ -145,48 +143,47 @@ class _AddParcelState extends State<AddParcel> {
                   ),
                 ),
                 const SizedBox(height: kDefaultSpacing * 1.5),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: IconButton(
-                            onPressed: (){
-
-                            },
-                            icon: Icon(Icons.person_outlined, size: 28 , color: Colors.black54,)),
-                      ),
-
-                  DropdownButtonHideUnderline(
-                    child:  DropdownButton<AllUserData>(
-                      hint: const Text('Select User ID'),
-                      dropdownColor: Colors.white,
-                      value: value,
-                      icon: const Icon(Icons.keyboard_arrow_down),
-                      items: widget.list
-                          .map(
-                            (AllUserData item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.UserId,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                      )
-                          .toList(),
-                      onChanged: (value) => setState(() {
-                        this.value = value!;
-                      }),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.person_outlined,
+                            size: 28,
+                            color: Colors.black54,
+                          )),
                     ),
-                  ),
-                    ],
-                  ),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<AllUserData>(
+                        hint: const Text('Select User ID'),
+                        dropdownColor: Colors.white,
+                        value: value,
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                        items: widget.list
+                            .map(
+                              (AllUserData item) => DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  item.UserId,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) => setState(() {
+                          this.value = value!;
+                        }),
+                      ),
+                    ),
+                  ],
                 ),
-               const SizedBox(height: kDefaultSpacing * 1.5),
+                const SizedBox(height: kDefaultSpacing * 1.5),
                 AsyncButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.maxFinite, 50),
@@ -196,19 +193,17 @@ class _AddParcelState extends State<AddParcel> {
                       letterSpacing: 1.1,
                     ),
                   ),
-                  onPressed: (){
-                     parcelProvider1.AddParcel(context , value!.UserId , count);
+                  onPressed: () {
+                    parcelProvider1.AddParcel(context, value!.UserId, count);
                   },
                   child: const Text("Add Parcel"),
                 ),
-
               ],
             ),
           ),
         ),
       ),
     );
-
   }
 
   _selectTime(BuildContext context) async {
@@ -216,14 +211,11 @@ class _AddParcelState extends State<AddParcel> {
       context: context,
       initialTime: selectedTime,
       initialEntryMode: TimePickerEntryMode.dial,
-
     );
-    if(timeOfDay != null && timeOfDay != selectedTime)
-    {
+    if (timeOfDay != null && timeOfDay != selectedTime) {
       setState(() {
         selectedTime = timeOfDay;
       });
     }
   }
-
 }

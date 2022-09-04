@@ -1,192 +1,246 @@
 import 'dart:io';
 
-
 import 'package:courier_application/Provider/SignInProvider.dart';
 import 'package:courier_application/Provider/UploadIdProvider.dart';
 import 'package:courier_application/RoughWork/GoogleMap/UserGoogleMap.dart';
 import 'package:courier_application/Screen/UploadId/UploadId.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+
 import 'package:image_picker/image_picker.dart';
 
 import '../Provider/SignUpProvider.dart';
 
 import '../shared_components/async_button.dart';
 
-
 class SingleParcelItem extends StatefulWidget {
-
   String ParcelName;
-
   String PickupAddress;
   String RecieverAddress;
   int orderid;
   String ParcelPrice;
-
+  String time;
 
   SingleParcelItem(this.ParcelName, this.PickupAddress, this.RecieverAddress,
-      this.orderid, this.ParcelPrice);
+      this.orderid, this.ParcelPrice, this.time);
 
   @override
   State<SingleParcelItem> createState() => _SingleParcelItemState();
 }
 
 class _SingleParcelItemState extends State<SingleParcelItem> {
-
   var _storedImage;
-  late double longitude;
-  late double latitude;
-  File? imageFile ;
-    PickedFile?  pickedFile;
-    bool val = false;
+  double? longitude;
+  double? latitude;
+  File? imageFile;
+  PickedFile? pickedFile;
+  bool val = false;
   Widget build(BuildContext context) {
     SignUpProvider passportId = Provider.of(context);
     UploadIdProvider uploadIdProvider = Provider.of(context);
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 10 ,top: 10),
-                child: Container(
-                  height: 170,
-                  child: Row(
-                    mainAxisAlignment:MainAxisAlignment.spaceBetween ,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Order Id :${widget.orderid}",
-                            style:  TextStyle(color: Colors.black , fontWeight: FontWeight.bold),),
-                          SizedBox(height: 10,),
-                          Text("Parcel Name :${widget.ParcelName}",
-                            style:  TextStyle(color: Colors.black , ),),
-                          SizedBox(height: 10,),
-                          Text("PickUp Address :${widget.PickupAddress}",
-                            maxLines: 3,
-                            softWrap: false,
-                            style:  TextStyle(color: Colors.black , fontSize: 14),),
-                          SizedBox(height: 10,),
-                          Text("RecieverAddress :${widget.RecieverAddress}",
-                            overflow: TextOverflow.clip,
-                            style:  TextStyle(color: Colors.black , fontSize: 14),),
-                          SizedBox(height: 10,),
-                          Text("Dollar Price: ${widget.ParcelPrice} \$",
-                            style:  TextStyle(color: Colors.black , fontSize: 14),),
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              direction: Axis.vertical,
+              children: [
+                Text(
+                  widget.ParcelName,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Order Id# ${widget.orderid}",
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Parcel Price|| ${widget.ParcelPrice}",
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text(
+                  "Pickup Address|",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  widget.PickupAddress,
+                  maxLines: 3,
+                  softWrap: false,
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text(
+                  "Receiver Address|",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  widget.RecieverAddress,
+                  overflow: TextOverflow.clip,
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
+              height: 1,
+              color: Colors.black54,
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  //minimumSize: const Size(30, 40),
+                  elevation: 5,
+                  shape: const BeveledRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    //letterSpacing: 1,
+                  ),
+                ),
+                onPressed: () async {
+                  print("************************" +
+                      SignInProvider.UserId.toString());
+                  uploadIdProvider.getStatusOfId(SignInProvider.UserId);
+                  print(uploadIdProvider.status.toString() +
+                      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+                  if (uploadIdProvider.status == 0) {
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Add ID"),
+                            actions: <Widget>[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  FlatButton(
+                                    child: const Text("Go To"),
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const UploadId()));
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: const Text("NO"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      passportId.Username.text = "";
+                                    },
+                                  ),
+                                ],
+                              )
+                            ],
+                          );
+                        });
+                  } else if (uploadIdProvider.status == 1) {
+                    getCurrentPosition();
+                    if (latitude == null && longitude == null) {
+                      Fluttertoast.showToast(msg: "Invalid Location");
+                      List<Location> locations = await locationFromAddress(
+                          "Gronausestraat 710, Enschede");
+                    } else {
+                      final queryPickupAddress = widget.PickupAddress.toString();
+                      var addresses = await Geocoder.local
+                          .findAddressesFromQuery(queryPickupAddress);
+                      var PickUpfirst = addresses.first;
 
-                          Padding(
-                            padding: EdgeInsets.only(left: 230),
-                            child: AsyncButton(
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(30, 40),
-                                textStyle: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.1,
-                                ),
-                              ),
-                              onPressed: (){
-                                uploadIdProvider.getStatusOfId(SignInProvider.UserId);
-                                if(uploadIdProvider.Status == 0){
-                                  showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text("Add ID"),
-                                          actions: <Widget>[
+                      final queryDestinationAddress =
+                          widget.RecieverAddress.toString();
+                      var addresses1 = await Geocoder.local
+                          .findAddressesFromQuery(queryDestinationAddress);
+                      var RecieverAddressfirst = addresses1.first;
 
-                                            Row(
-                                              mainAxisAlignment:MainAxisAlignment.spaceBetween ,
-                                              children: [
-                                                FlatButton(
-                                                  child: Text("Go To"),
-                                                  onPressed: () {
-                                                     Navigator.of(context).push(MaterialPageRoute(builder: (context)=> UploadId()));
-                                                  },
-                                                ),
-                                                FlatButton(
-                                                  child: Text("NO"),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                    passportId.Username.text="";
-                                                  },
-                                                ),
-                                              ],
-                                            )
-
-
-
-                                          ],
-                                        );
-                                      }
-                                  );
-                                }
-                                else if(uploadIdProvider.Status == 1){
-                                  getCurrentPosition();
-                                  if(latitude == null && longitude == null){
-                                    Fluttertoast.showToast(msg: "Invalid Location");
-                                  }
-                                  else {
-                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserGoogleMap(latitude.toString(), longitude.toString(), "Username")));
-                                  }
-
-                                }
-
-
-
-
-
-                              },
-                              child: const Text("Accept"),
-                            ),
-                          ),
-
-                        ],
-                      ),
-
-
-
-
-                    ],
+                      print(
+                          "${PickUpfirst.featureName} : ${PickUpfirst.coordinates}");
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => UserGoogleMap(
+                              widget.time.toString(),
+                              latitude.toString(),
+                              longitude.toString(),
+                              "Username",
+                              PickUpfirst.coordinates.latitude,
+                              PickUpfirst.coordinates.longitude,
+                              RecieverAddressfirst.coordinates.latitude,
+                              RecieverAddressfirst.coordinates.longitude)));
+                    }
+                  }
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Accept',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
-
-
-
-            ],
-          ),
+            ),
+          ],
         ),
-       Divider(
-          height: 1,
-          color: Colors.black54,
-        )
-      ],
+      ),
     );
   }
 
-
   _getFromCamera() async {
-  pickedFile = (await ImagePicker().getImage(
+    pickedFile = (await ImagePicker().getImage(
       source: ImageSource.camera,
       maxWidth: 1800,
       maxHeight: 1800,
     ))!;
     if (pickedFile != null) {
-       imageFile = File(pickedFile!.path);
-       val = true;
+      imageFile = File(pickedFile!.path);
+      val = true;
       print(imageFile!.path);
     }
   }
+
   Future getImage() async {
-    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
         imageFile = File(pickedFile.path);
@@ -195,6 +249,7 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
       }
     });
   }
+
   Future<void> getCurrentPosition() async {
     LocationPermission permission;
     bool serviceEnabled;
@@ -224,7 +279,7 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
         desiredAccuracy: LocationAccuracy.high);
     if (position != null) {
       List<Placemark> placemarks =
-      await placemarkFromCoordinates(position.latitude, position.longitude);
+          await placemarkFromCoordinates(position.latitude, position.longitude);
       print(placemarks);
       this.latitude = position.latitude;
       this.longitude = position.longitude;
@@ -235,6 +290,4 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
           longitude.toString());
     }
   }
-
 }
-

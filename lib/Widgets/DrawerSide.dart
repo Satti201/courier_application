@@ -3,7 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
+import 'package:courier_application/Provider/SignInProvider.dart';
+import 'package:courier_application/Provider/UploadIdProvider.dart';
 
 import '../EditField/Colors.dart';
 import '../Models/AllUserData.dart';
@@ -29,6 +32,7 @@ class _DrawerSideState extends State<DrawerSide> {
   }
   List<AllUserData> UserDataLists =[];
   Widget build(BuildContext context) {
+    UploadIdProvider uploadIdProvider = Provider.of(context);
     Widget listTitle(IconData iconData , String title , Function ontap){
       return ListTile(
         onTap: (){
@@ -38,7 +42,7 @@ class _DrawerSideState extends State<DrawerSide> {
           iconData,
           size: 32,
         ),
-        title: Text(title, style: TextStyle(color: Colors.black45),),
+        title: Text(title, style: const TextStyle(color: Colors.black45),),
       );
     }
     return SizedBox(
@@ -50,7 +54,7 @@ class _DrawerSideState extends State<DrawerSide> {
             children: [
               DrawerHeader(child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     backgroundColor: Colors.white54,
                     radius: 43,
                     child: CircleAvatar(
@@ -63,8 +67,8 @@ class _DrawerSideState extends State<DrawerSide> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 0),
+                      const Padding(
+                        padding: EdgeInsets.only(right: 0),
                         child: Text("Usama Tariq", style: TextStyle(),),
                       ),
                       SizedBox(height: 7,),
@@ -72,7 +76,7 @@ class _DrawerSideState extends State<DrawerSide> {
                         padding: const EdgeInsets.only(top: 10),
                         child: Container(
                           height: 25,
-                          child: Text("", style: TextStyle(),),
+                          child: const Text("", style: TextStyle(),),
                         ),
                       )
                     ],
@@ -111,8 +115,42 @@ class _DrawerSideState extends State<DrawerSide> {
               listTitle(Icons.person_outlined,"Show Parcel",(){
                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>Parcel()));
               }),
-              listTitle(Icons.notifications_outlined,"Upload Id",(){
+              listTitle(Icons.notifications_outlined,"Upload Id",(){/*
                 Navigator.of(context).push(MaterialPageRoute(builder: (context)=>UploadId()));
+*/
+
+                uploadIdProvider.checkData(SignInProvider.UserId);
+                if (uploadIdProvider.hasData == 0) {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => UploadId()));
+                } else if (uploadIdProvider.hasData == 1) {
+                  uploadIdProvider.getStatusOfId(SignInProvider.UserId);
+                  if (uploadIdProvider.status == 0) {
+                    uploadIdProvider.fetchExpTime(SignInProvider.UserId);
+                    DateTime now = DateTime.now();
+                    print(uploadIdProvider.expTime);
+                    String nExpTime =Jiffy(uploadIdProvider.expTime).fromNow();
+
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(nExpTime),
+                            content: const Text(
+                                "Your Request will be processed in given time!"),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text("Go Back"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        });
+                  }
+                }
 
               }),
               listTitle(Icons.notifications_outlined,"My Bookings",(){

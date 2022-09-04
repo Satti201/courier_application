@@ -1,5 +1,3 @@
-
-
 import 'dart:io';
 
 import 'package:courier_application/Provider/UploadIdProvider.dart';
@@ -10,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../EditField/Colors.dart';
+
 class UploadId extends StatefulWidget {
   const UploadId({Key? key}) : super(key: key);
 
@@ -18,28 +17,30 @@ class UploadId extends StatefulWidget {
 }
 
 class _UploadIdState extends State<UploadId> {
-   File? imageFile ;
+  File? imageFile;
   @override
   Widget build(BuildContext context) {
     UploadIdProvider uploadIdProvider = Provider.of(context);
     return Scaffold(
       drawer: DrawerSide(),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.only(bottom: 20),
-
+        padding: const EdgeInsets.only(bottom: 20),
         child: Padding(
-          padding: const EdgeInsets.only(left: 20,right: 20),
+          padding: const EdgeInsets.only(left: 20, right: 20),
           child: MaterialButton(
             height: 45,
-            onPressed: (){
-                   if(imageFile!.path == null){
-                     Fluttertoast.showToast(msg: "Please Add The Id");
-                   }
-                   else{
-                     uploadIdProvider.UserUploadId(context, imageFile!, 0);
-                   }
+            onPressed: () {
+              if (imageFile == null) {
+                Fluttertoast.showToast(msg: "Please Add The Id");
+              } else {
+                uploadIdProvider.UserUploadId(context, imageFile!, 0);
+              }
             },
-            child: Text("UPLOAD ID" , style: TextStyle(fontWeight: FontWeight.bold, color:  textColor , fontSize: 18),),
+            child: Text(
+              "UPLOAD ID",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: textColor, fontSize: 18),
+            ),
             color: primaryColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
@@ -50,40 +51,44 @@ class _UploadIdState extends State<UploadId> {
       appBar: AppBar(
         backgroundColor: scaffoldbackgroundColor,
         iconTheme: IconThemeData(color: textColor),
-        title: Text("Upload ID", style: TextStyle(color: Colors.black),),
+        title: const Text(
+          "Upload ID Card",
+          style: TextStyle(color: Colors.black),
+        ),
       ),
-      body:
-      Center(
+      body: Center(
         child: Column(
           children: [
-            SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             InkWell(
-              onTap: (){
+              onTap: () {
                 getImage();
               },
               child: CircleAvatar(
                 radius: 150.0,
                 backgroundColor: Colors.white54,
                 child: ClipRRect(
-                  child:imageFile != null
+                  child: imageFile != null
                       ? Image.file(
-                    imageFile!,
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 25,
-                  )
-                      : Text("Pick up the  image"),
+                          imageFile!,
+                          height: MediaQuery.of(context).size.height * 25,
+                        )
+                      : const Text("Pick up the  image"),
                   borderRadius: BorderRadius.circular(50.0),
                 ),
               ),
             ),
-            SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             Center(
               child: Row(
                 children: const [
                   Expanded(
-                    child: Text("Note : The User Document ID Approved By Admin WithIn 3 Days Limits Wait For The Admin Response"),
+                    child: Text(
+                        "Note : The User Document ID will be approved with in three days. Please wait for response!"),
                   )
                 ],
               ),
@@ -93,13 +98,15 @@ class _UploadIdState extends State<UploadId> {
       ),
     );
   }
+
   Future getImage() async {
-    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
         imageFile = File(pickedFile.path);
       } else {
-        print('No image selected.');
+        Fluttertoast.showToast(msg: "ID Image was not selected.");
       }
     });
   }
