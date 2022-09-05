@@ -33,9 +33,19 @@ class _HomePageState extends State<HomePage> {
   bool dataCheck = false;
   bool statusCheck = false;
   bool timeCheck = false;
-  late int haveData;
+  int haveData=0;
   late int haveStatus;
   late String haveExpTime;
+  String newTime='Wait...';
+  late int notStatus;
+  final notificationCollection = FirebaseFirestore.instance;
+
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +88,17 @@ class _HomePageState extends State<HomePage> {
               "HomePage",
               style: TextStyle(color: Colors.black),
             ),
+           actions: <Widget>[
+              IconButton(
+                icon: const Icon(
+                  Icons.notification_important,
+                  color: Colors.purple,
+                ),
+                onPressed: () {
+                  // do something
+                },
+              )
+            ],
           ),
           body: _loadScreen()),
     );
@@ -169,52 +190,75 @@ class _HomePageState extends State<HomePage> {
                         Map<String, dynamic> data =
                             queryDocumentSnapshot.data();
                         if (SignInProvider.UserId == data['UserId']) {
-                          haveData = 1;
+                          setState(() {
+                            haveData = 1;
+                          });
                         }
                       }
-                      dataCheck = true;
+                      setState(() {
+                        dataCheck = true;
+                      });
+                      print("have data: " + haveData.toString());
                     }
                     if (haveData == 0) {
                       setState(() {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => UploadId()));
                       });
-                    }
-                    if (haveData == 1) {
-                      if(statusCheck==false){
-                        var collection = FirebaseFirestore.instance.collection('UserUploadId');
+                    } else if (haveData == 1) {
+                      if (statusCheck == false) {
+                        var collection = FirebaseFirestore.instance
+                            .collection('UserUploadId');
                         var querySnapshot = await collection.get();
                         for (var queryDocumentSnapshot in querySnapshot.docs) {
-                          Map<String, dynamic> data = queryDocumentSnapshot.data();
+                          Map<String, dynamic> data =
+                              queryDocumentSnapshot.data();
                           if (SignInProvider.UserId == data['UserId']) {
-                            haveStatus = data['Status'];
+                            setState(() {
+                              haveStatus = data['Status'];
+                            });
                           }
                         }
-                        statusCheck=true;
-                      } else if(statusCheck==true){
-                        if(timeCheck==false){
-                          var collection = FirebaseFirestore.instance.collection('UserUploadId');
+                        setState(() {
+                          statusCheck = true;
+                        });
+                        print("have Status: " + haveStatus.toString());
+                      }
+                      if (haveStatus == 0) {
+                        setState(() {
+                          statusCheck=false;
+                        });
+                        if (timeCheck == false) {
+                          var collection = FirebaseFirestore.instance
+                              .collection('UserUploadId');
                           var querySnapshot = await collection.get();
-                          for (var queryDocumentSnapshot in querySnapshot.docs) {
-                            Map<String, dynamic> data = queryDocumentSnapshot.data();
+                          for (var queryDocumentSnapshot
+                              in querySnapshot.docs) {
+                            Map<String, dynamic> data =
+                                queryDocumentSnapshot.data();
                             if (SignInProvider.UserId == data['UserId']) {
-                              haveExpTime = data["Exp-Date"];
+                              setState(() {
+                                haveExpTime = data["ExpDate"];
+                              });
                             }
                           }
-                          timeCheck=true;
-                        }
-                        if (haveStatus == 0) {
-                          DateTime now = DateTime.now();
-                          print(uploadIdProvider.expTime);
-                          String nExpTime =
-                          Jiffy(haveExpTime).fromNow();
-
-                          showDialog(
+                          setState(() {
+                            timeCheck = true;
+                          });
+                          print("check time${timeCheck}");
+                        } else if (timeCheck == true) {;
+                        DateTime date = DateTime.parse(haveExpTime);
+                          setState(() {
+                            print("Exp time"+haveExpTime);
+                            //newTime=Jiffy(date).fromNow();
+                            timeCheck = false;
+                          });
+                          return showDialog(
                               context: context,
                               barrierDismissible: false,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text(nExpTime),
+                                  title: Text(Jiffy(date).fromNow()),
                                   content: const Text(
                                       "Your Request will be processed in given time!"),
                                   actions: <Widget>[
@@ -228,6 +272,28 @@ class _HomePageState extends State<HomePage> {
                                 );
                               });
                         }
+                      } else if (haveStatus == 1) {
+                        setState(() {
+                           statusCheck=false;
+                        });
+                        return showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Accepted"),
+                                content: const Text(
+                                    "Your ID request was Accepted! Image wil be shown here!"),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: const Text("Go Back"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            });
                       }
                     }
                   },

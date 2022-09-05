@@ -13,9 +13,10 @@ import 'SignInProvider.dart';
 import 'package:http/http.dart' as http;
 
 class UploadIdProvider with ChangeNotifier {
-  late int status ;
+  int status =-1;
   int hasData =0;
   String message = "";
+  String mess="i am satti";
   String expTime="";
 
   void UserUploadId(context, File Image, int Status) async {
@@ -31,8 +32,11 @@ class UploadIdProvider with ChangeNotifier {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      message = await response.stream.bytesToString();
+      String messa = await response.stream.bytesToString();
 
+      message=jsonDecode(messa);
+      print("**************************************");
+      print(message);
       if (message != null) {
         String id =
             FirebaseFirestore.instance.collection('UserUploadId').doc().id;
@@ -42,8 +46,8 @@ class UploadIdProvider with ChangeNotifier {
             .set({
           "UploadId": id,
           "UserId": SignInProvider.UserId,
-          "Curr-Date": currDate.toString(),
-          "Exp-Date": expDate.toString(),
+          "CurrDate": currDate.toString(),
+          "ExpDate": expDate.toString(),
           "UserImageId": message,
           "Status": 0,
         }).then((value) async {
@@ -89,7 +93,7 @@ class UploadIdProvider with ChangeNotifier {
     for (var queryDocumentSnapshot in querySnapshot.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
       if (userId == data['UserId']) {
-        expTime= data["Exp-Date"];
+        expTime= data["ExpDate"];
         return expTime;
       }
     }

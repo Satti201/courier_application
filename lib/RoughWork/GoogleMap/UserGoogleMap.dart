@@ -249,8 +249,8 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
             barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text("Confirm Logout"),
-                content: const Text("Are you sure you want to Logout?"),
+                title: const Text("Confirm Cancellation"),
+                content: const Text("Are you sure, you want to cancel this Parcel?"),
                 actions: <Widget>[
                   FlatButton(
                     child: const Text("YES"),

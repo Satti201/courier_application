@@ -155,8 +155,8 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                   }
                   if(valcheck == true)
                     {
-                      if (uploadIdProvider.status == 0) {
-                        showDialog(
+                      if (uploadIdProvider.status == -1) {
+                       return showDialog(
                             context: context,
                             barrierDismissible: false,
                             builder: (BuildContext context) {
@@ -187,6 +187,8 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                                 ],
                               );
                             });
+                      }else if(uploadIdProvider.status==0){
+
                       }
                       else if (uploadIdProvider.status == 1) {
 

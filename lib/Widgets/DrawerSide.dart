@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,35 +15,44 @@ import '../Screen/Parcel/Parcel.dart';
 import '../Screen/UploadId/UploadId.dart';
 
 class DrawerSide extends StatefulWidget {
-
-
   @override
   State<DrawerSide> createState() => _DrawerSideState();
 }
 
 class _DrawerSideState extends State<DrawerSide> {
   bool check = false;
+  bool dataCheck = false;
+  bool statusCheck = false;
+  bool timeCheck = false;
+   int haveData=0;
+  late int haveStatus;
+  late String haveExpTime;
+
   @override
   void initState() {
-
     // TODO: implement initState
     super.initState();
   }
-  List<AllUserData> UserDataLists =[];
+
+  List<AllUserData> UserDataLists = [];
   Widget build(BuildContext context) {
     UploadIdProvider uploadIdProvider = Provider.of(context);
-    Widget listTitle(IconData iconData , String title , Function ontap){
+    Widget listTitle(IconData iconData, String title, Function ontap) {
       return ListTile(
-        onTap: (){
+        onTap: () {
           ontap();
         },
         leading: Icon(
           iconData,
           size: 32,
         ),
-        title: Text(title, style: const TextStyle(color: Colors.black45),),
+        title: Text(
+          title,
+          style: const TextStyle(color: Colors.black45),
+        ),
       );
     }
+
     return SizedBox(
       width: 270,
       child: Drawer(
@@ -52,14 +60,16 @@ class _DrawerSideState extends State<DrawerSide> {
           color: scaffoldbackgroundColor,
           child: ListView(
             children: [
-              DrawerHeader(child: Row(
+              DrawerHeader(
+                  child: Row(
                 children: [
                   const CircleAvatar(
                     backgroundColor: Colors.white54,
                     radius: 43,
                     child: CircleAvatar(
                       radius: 40,
-                      backgroundImage: NetworkImage("https://i.pinimg.com/600x315/47/7f/a4/477fa4df6509e5120468638e7ab14d22.jpg") ,
+                      backgroundImage: NetworkImage(
+                          "https://i.pinimg.com/600x315/47/7f/a4/477fa4df6509e5120468638e7ab14d22.jpg"),
                     ),
                   ),
                   SizedBox(width: 20),
@@ -69,29 +79,38 @@ class _DrawerSideState extends State<DrawerSide> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.only(right: 0),
-                        child: Text("Usama Tariq", style: TextStyle(),),
+                        child: Text(
+                          "Usama Tariq",
+                          style: TextStyle(),
+                        ),
                       ),
-                      SizedBox(height: 7,),
+                      SizedBox(
+                        height: 7,
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: Container(
                           height: 25,
-                          child: const Text("", style: TextStyle(),),
+                          child: const Text(
+                            "",
+                            style: TextStyle(),
+                          ),
                         ),
                       )
                     ],
                   )
                 ],
-              )
-              ),
-              listTitle(Icons.home_outlined,"Home" ,(){
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>HomePage()));
+              )),
+              listTitle(Icons.home_outlined, "Home", () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => HomePage()));
               }),
-              listTitle(Icons.shop_outlined,"Add Parcel",() async {
-                if(check == false)
-                {
-                  List<AllUserData> newList =[];
-                  QuerySnapshot snapshot =  await FirebaseFirestore.instance.collection("UserData").get();
+              listTitle(Icons.shop_outlined, "Add Parcel", () async {
+                if (check == false) {
+                  List<AllUserData> newList = [];
+                  QuerySnapshot snapshot = await FirebaseFirestore.instance
+                      .collection("UserData")
+                      .get();
                   snapshot.docs.forEach((element) {
                     AllUserData parcelData = AllUserData(
                       element.get("UserId"),
@@ -99,44 +118,99 @@ class _DrawerSideState extends State<DrawerSide> {
                       element.get("email"),
                       element.get('password'),
                       element.get("PhoneNo"),
-
                     );
 
                     newList.add(parcelData);
                   });
-                  UserDataLists= newList;
+                  UserDataLists = newList;
                   check = true;
                 }
-                if(check == true){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=> AddParcel(UserDataLists)));
-
+                if (check == true) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AddParcel(UserDataLists)));
                 }
-               }),
-              listTitle(Icons.person_outlined,"Show Parcel",(){
-               Navigator.of(context).push(MaterialPageRoute(builder: (context)=>Parcel()));
               }),
-              listTitle(Icons.notifications_outlined,"Upload Id",(){/*
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>UploadId()));
-*/
-
-                uploadIdProvider.checkData(SignInProvider.UserId);
-                if (uploadIdProvider.hasData == 0) {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => UploadId()));
-                } else if (uploadIdProvider.hasData == 1) {
-                  uploadIdProvider.getStatusOfId(SignInProvider.UserId);
-                  if (uploadIdProvider.status == 0) {
-                    uploadIdProvider.fetchExpTime(SignInProvider.UserId);
-                    DateTime now = DateTime.now();
-                    print(uploadIdProvider.expTime);
-                    String nExpTime =Jiffy(uploadIdProvider.expTime).fromNow();
-
-                    showDialog(
+              listTitle(Icons.person_outlined, "Show Parcel", () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => Parcel()));
+              }),
+              listTitle(Icons.notifications_outlined, "Upload Id", () async {
+                if (dataCheck == false) {
+                  var collection =
+                  FirebaseFirestore.instance.collection('UserUploadId');
+                  var querySnapshot = await collection.get();
+                  for (var queryDocumentSnapshot in querySnapshot.docs) {
+                    Map<String, dynamic> data =
+                    queryDocumentSnapshot.data();
+                    if (SignInProvider.UserId == data['UserId']) {
+                      setState(() {
+                        haveData = 1;
+                      });
+                    }
+                  }
+                  setState(() {
+                    dataCheck = true;
+                  });
+                  print("have data: " + haveData.toString());
+                }
+                if (haveData == 0) {
+                  setState(() {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => UploadId()));
+                  });
+                } else if (haveData == 1) {
+                  if (statusCheck == false) {
+                    var collection = FirebaseFirestore.instance
+                        .collection('UserUploadId');
+                    var querySnapshot = await collection.get();
+                    for (var queryDocumentSnapshot in querySnapshot.docs) {
+                      Map<String, dynamic> data =
+                      queryDocumentSnapshot.data();
+                      if (SignInProvider.UserId == data['UserId']) {
+                        setState(() {
+                          haveStatus = data['Status'];
+                        });
+                      }
+                    }
+                    setState(() {
+                      statusCheck = true;
+                    });
+                    print("have Status: " + haveStatus.toString());
+                  }
+                  if (haveStatus == 0) {
+                    setState(() {
+                      statusCheck=false;
+                    });
+                    if (timeCheck == false) {
+                      var collection = FirebaseFirestore.instance
+                          .collection('UserUploadId');
+                      var querySnapshot = await collection.get();
+                      for (var queryDocumentSnapshot
+                      in querySnapshot.docs) {
+                        Map<String, dynamic> data =
+                        queryDocumentSnapshot.data();
+                        if (SignInProvider.UserId == data['UserId']) {
+                          setState(() {
+                            haveExpTime = data["ExpDate"];
+                          });
+                        }
+                      }
+                      setState(() {
+                        timeCheck = true;
+                      });
+                      print("check time${timeCheck}");
+                    } else if (timeCheck == true) {;
+                    DateTime date = DateTime.parse(haveExpTime);
+                    setState(() {
+                      print("Exp time"+haveExpTime);
+                      timeCheck = false;
+                    });
+                    return showDialog(
                         context: context,
                         barrierDismissible: false,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text(nExpTime),
+                            title: Text(Jiffy(date).fromNow()),
                             content: const Text(
                                 "Your Request will be processed in given time!"),
                             actions: <Widget>[
@@ -149,17 +223,36 @@ class _DrawerSideState extends State<DrawerSide> {
                             ],
                           );
                         });
+                    }
+                  } else if (haveStatus == 1) {
+                    setState(() {
+                      statusCheck=false;
+                    });
+                    return showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Accepted"),
+                            content: const Text(
+                                "Your ID request was Accepted! Image wil be shown here!"),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text("Go Back"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        });
                   }
                 }
-
               }),
-              listTitle(Icons.notifications_outlined,"My Bookings",(){
-
-              }),
-              listTitle(Icons.star_outlined,"Rating & Review",(){}),
-              listTitle(Icons.copy_outlined,"Raise a Complaint",(){}),
-              listTitle(Icons.format_quote_outlined,"FAQs",(){}),
-
+              listTitle(Icons.notifications_outlined, "My Bookings", () {}),
+              listTitle(Icons.star_outlined, "Rating & Review", () {}),
+              listTitle(Icons.copy_outlined, "Raise a Complaint", () {}),
+              listTitle(Icons.format_quote_outlined, "FAQs", () {}),
               Container(
                 height: 350,
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -167,24 +260,30 @@ class _DrawerSideState extends State<DrawerSide> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Contact Support :"),
-                    SizedBox(height: 10,),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Row(
                       children: [
                         Text("Call Us:"),
-                        SizedBox(width: 10,),
+                        SizedBox(
+                          width: 10,
+                        ),
                         Text("+92 03033354121"),
-
                       ],
                     ),
-                    SizedBox(height: 5,),
+                    SizedBox(
+                      height: 5,
+                    ),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
                           Text("Mail Us:"),
-                          SizedBox(width: 10,),
+                          SizedBox(
+                            width: 10,
+                          ),
                           Text("tusama134@gmail.com"),
-
                         ],
                       ),
                     )
@@ -197,7 +296,4 @@ class _DrawerSideState extends State<DrawerSide> {
       ),
     );
   }
-
-
 }
-
