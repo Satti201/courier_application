@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
@@ -31,11 +32,12 @@ class UserGoogleMap extends StatefulWidget {
 }
 
 class _UserGoogleMapState extends State<UserGoogleMap> {
-  static const countdownDuration = Duration(minutes: 60);
+  late  Duration countdownDuration=Duration();
   Duration duration = Duration();
   Timer? timer;
 
   bool countDown = true;
+  bool timeEnd=false;
 
   String address = '';
   LatLng SOURCE_LOCATION = LatLng(24.8607, 67.0011);
@@ -86,6 +88,9 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
     // TODO: implement initState
     super.initState();
     //_markers.addAll(list);
+    setState(() {
+      countdownDuration= Duration(minutes: int.parse(widget.time));
+    });
     startTimer();
     reset();
     loadData();
@@ -104,6 +109,9 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
       final seconds = duration.inSeconds + addSeconds;
       if (seconds < 0) {
         timer?.cancel();
+        timeEnd=true;
+        Fluttertoast.showToast(msg: "You were not arrived in time!");
+        Navigator.of(context).pop();
       } else {
         duration = Duration(seconds: seconds);
       }
@@ -319,7 +327,14 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
                     height: 40.0,
                     child: FloatingActionButton(
 
-                      onPressed: () {},
+                      onPressed: () {/*
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PhoneAuthentication(
+                          signUpProvider.PhoneNo,
+                          signUpProvider,
+                          myType.name.toString(),
+                        )));
+
+                    */  },
                       child: Icon(Icons.add , size: 20,),
                     ),
                   ),

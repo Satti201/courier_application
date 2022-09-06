@@ -11,6 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -38,15 +39,19 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
   var _storedImage;
   double? longitude;
   bool valcheck = false;
+  bool timeCheck = false;
   double? latitude;
   File? imageFile;
   PickedFile? pickedFile;
   int Status = -0;
+  String expTime='';
   bool val = false;
+  DateTime date=DateTime.now();
   Widget build(BuildContext context) {
     SignUpProvider passportId = Provider.of(context);
     UploadIdProvider uploadIdProvider = Provider.of(context);
     uploadIdProvider.getStatusOfId(SignInProvider.UserId);
+    uploadIdProvider.fetchExpTime(SignInProvider.UserId);
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -145,89 +150,104 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                   ),
                 ),
                 onPressed: () async {
-
-
-
-                  if(valcheck == false) {
-                    await  getCurrentPosition();
-                    await  uploadIdProvider.getStatusOfId(SignInProvider.UserId);
-                   valcheck = true;
+                  if (valcheck == false) {
+                    await getCurrentPosition();
+                    await uploadIdProvider.getStatusOfId(SignInProvider.UserId);
+                    valcheck = true;
                   }
-                  if(valcheck == true)
-                    {
-                      if (uploadIdProvider.status == -1) {
-                       return showDialog(
+                  if (valcheck == true) {
+                    if (uploadIdProvider.status == -1) {
+                      return showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Add ID"),
+                              actions: <Widget>[
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    FlatButton(
+                                      child: const Text("Go To"),
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const UploadId()));
+                                      },
+                                    ),
+                                    FlatButton(
+                                      child: const Text("NO"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        passportId.Username.text = "";
+                                      },
+                                    ),
+                                  ],
+                                )
+                              ],
+                            );
+                          });
+                    } else if (uploadIdProvider.status == 0) {
+                      print("status"+uploadIdProvider.status.toString());
+                      if (timeCheck == false) {
+                        await uploadIdProvider.fetchExpTime(SignInProvider.UserId);
+                        timeCheck = true;
+                      } else if (timeCheck == true) {
+                       setState(() {
+                         date = DateTime.parse(uploadIdProvider.expTime);
+                       });
+                        return showDialog(
                             context: context,
                             barrierDismissible: false,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text("Add ID"),
+                                title: Text(Jiffy(date).fromNow()),
+                                content: const Text(
+                                    "Your Request will be processed in given time!"),
                                 actions: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      FlatButton(
-                                        child: const Text("Go To"),
-                                        onPressed: () {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                  const UploadId()));
-                                        },
-                                      ),
-                                      FlatButton(
-                                        child: const Text("NO"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          passportId.Username.text = "";
-                                        },
-                                      ),
-                                    ],
-                                  )
+                                  FlatButton(
+                                    child: const Text("Go Back"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
                                 ],
                               );
                             });
-                      }else if(uploadIdProvider.status==0){
-
                       }
-                      else if (uploadIdProvider.status == 1) {
+                    } else if (uploadIdProvider.status == 1) {
+                      if (latitude == null && longitude == null) {
+                        Fluttertoast.showToast(msg: "Invalid Location");
+                      } else {
+                        final queryPickupAddress =
+                            widget.PickupAddress.toString();
+                        var addresses = await Geocoder.local
+                            .findAddressesFromQuery(queryPickupAddress);
+                        var PickUpfirst = addresses.first;
 
-                        if (latitude == null && longitude == null) {
-                          Fluttertoast.showToast(msg: "Invalid Location");
-                        }
-                        else {
-                          final queryPickupAddress = widget.PickupAddress.toString();
-                          var addresses = await Geocoder.local
-                              .findAddressesFromQuery(queryPickupAddress);
-                          var PickUpfirst = addresses.first;
+                        final queryDestinationAddress =
+                            widget.RecieverAddress.toString();
+                        var addresses1 = await Geocoder.local
+                            .findAddressesFromQuery(queryDestinationAddress);
+                        var RecieverAddressfirst = addresses1.first;
 
-                          final queryDestinationAddress =
-                          widget.RecieverAddress.toString();
-                          var addresses1 = await Geocoder.local
-                              .findAddressesFromQuery(queryDestinationAddress);
-                          var RecieverAddressfirst = addresses1.first;
-
-                          print(
-                              "${PickUpfirst.featureName} : ${PickUpfirst.coordinates}");
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => UserGoogleMap(
-                                  widget.time.toString(),
-                                  latitude.toString(),
-                                  longitude.toString(),
-                                  "Username",
-                                  PickUpfirst.coordinates.latitude,
-                                  PickUpfirst.coordinates.longitude,
-                                  RecieverAddressfirst.coordinates.latitude,
-                                  RecieverAddressfirst.coordinates.longitude)));
-                        }
+                        print(
+                            "${PickUpfirst.featureName} : ${PickUpfirst.coordinates}");
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => UserGoogleMap(
+                                widget.time.toString(),
+                                latitude.toString(),
+                                longitude.toString(),
+                                "Username",
+                                PickUpfirst.coordinates.latitude,
+                                PickUpfirst.coordinates.longitude,
+                                RecieverAddressfirst.coordinates.latitude,
+                                RecieverAddressfirst.coordinates.longitude)));
                       }
-
                     }
-
-
-
-
-
+                  }
                 },
                 child: const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -308,21 +328,28 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
           " longitude" +
           longitude.toString());
     }
-
-
-
-
   }
-  Future  getStatusOfId(String UserId) async {
+
+
+  Future fetchExpTime(String userId) async {
+    var collection = FirebaseFirestore.instance.collection('UserUploadId');
+    var querySnapshot = await collection.get();
+    for (var queryDocumentSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> data = queryDocumentSnapshot.data();
+      if (userId == data['UserId']) {
+        expTime= data["ExpDate"];
+      }
+    }
+  }
+
+  Future getStatusOfId(String UserId) async {
     var collection = FirebaseFirestore.instance.collection('UserUploadId');
     var querySnapshot = await collection.get();
     for (var queryDocumentSnapshot in querySnapshot.docs) {
       Map<String, dynamic> data = queryDocumentSnapshot.data();
       if (UserId == data['UserId']) {
         Status = data['Status'];
-        print(Status);
       }
     }
   }
-
 }

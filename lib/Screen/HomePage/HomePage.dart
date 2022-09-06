@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:courier_application/Provider/SignInProvider.dart';
 import 'package:courier_application/Provider/UploadIdProvider.dart';
+import 'package:courier_application/Screen/Notification/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
@@ -95,6 +96,8 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.purple,
                 ),
                 onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => NotificationScreen(SignInProvider.UserId)));
                   // do something
                 },
               )
@@ -246,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                             timeCheck = true;
                           });
                           print("check time${timeCheck}");
-                        } else if (timeCheck == true) {;
+                        } else if (timeCheck == true) {
                         DateTime date = DateTime.parse(haveExpTime);
                           setState(() {
                             print("Exp time"+haveExpTime);
