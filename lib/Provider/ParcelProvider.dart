@@ -19,10 +19,13 @@ class ParcelProvider with ChangeNotifier {
   TextEditingController Time = TextEditingController();
 
   void AddParcel(context, String RecieverId, int Count) async {
+    print("&&&&&&&&&&"+Time.text);
     if (ParcelName.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelName is Empty");
     } else if (PickUpAddress.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelAddress is Empty");
+    }else if(int.parse(Time.text)>30){
+      Fluttertoast.showToast(msg: "Time should be less then 30 min");
     } else {
       await FirebaseFirestore.instance
           .collection("ParcelData")

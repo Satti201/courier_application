@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart';
@@ -129,7 +130,7 @@ class _AddParcelState extends State<AddParcel> {
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     icon: Icon(Icons.timelapse),
-                    hintText: "Time Hour:Minutes",
+                    hintText: "30 Minutes",
                   ),
                 ),
                 const SizedBox(height: kDefaultSpacing * 1.5),
@@ -194,7 +195,11 @@ class _AddParcelState extends State<AddParcel> {
                     ),
                   ),
                   onPressed: () {
-                    parcelProvider1.AddParcel(context, value!.UserId, count);
+                    if(value==null){
+                      Fluttertoast.showToast(msg: "Please Select User ID from dropdown menu");
+                    }else{
+                      parcelProvider1.AddParcel(context, value!.UserId, count);
+                    }
                   },
                   child: const Text("Add Parcel"),
                 ),
