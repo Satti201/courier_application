@@ -7,8 +7,9 @@ class ParcelData {
   String Weight;
   String Dimensions;
   String Category;
+  String Insurance;
   ParcelData(this.ParcelName, this.PickUpAddress, this.RecieverAddress,
-      this.orderid, this.Category, this.ParcelPrice, this.Weight, this.Dimensions);
+      this.orderid, this.Category, this.ParcelPrice, this.Weight, this.Insurance, this.Dimensions);
 
 
 

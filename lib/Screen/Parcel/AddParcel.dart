@@ -54,7 +54,7 @@ class _AddParcelState extends State<AddParcel> {
   bool get hasFocus => false;
 
   bool isClicked = false;
-  bool insurence=false;
+  bool avialInsurence=false;
 
   @override
   Widget build(BuildContext context) {
@@ -288,15 +288,15 @@ class _AddParcelState extends State<AddParcel> {
                 const SizedBox(height: kDefaultSpacing * 1.5),
 
                 SwitchListTile( //switch at right side of label
-                    value: insurence,
+                    value: avialInsurence,
                     onChanged: (bool value){
-                      if(insurence==false) {
+                      if(avialInsurence==false) {
                         setState(() {
-                          insurence = true;//update value when switch changed
+                          avialInsurence = true;//update value when switch changed
                         });
                       }else{
                         setState(() {
-                          insurence = false; //update value when switch changed
+                          avialInsurence = false; //update value when switch changed
                         });
                       }
                     },
@@ -359,7 +359,12 @@ class _AddParcelState extends State<AddParcel> {
                       Fluttertoast.showToast(
                           msg: "Please Select User ID from dropdown menu");
                     } else {
-                     // parcelProvider1.ParcelInsurance=3/100* double.parse(parcelProvider1.ParcelPrice.toString());
+                      if(avialInsurence==true){
+                        double insurance=3/100* double.parse(parcelProvider1.ParcelPrice.text.toString());
+                        parcelProvider1.ParcelInsurance.text=insurance.toString();
+                      }else{
+                        parcelProvider1.ParcelInsurance.text="";
+                      }
                       parcelProvider1.AddParcel(context,value1!.categoryName, value!.UserId, count);
                     }
                   },

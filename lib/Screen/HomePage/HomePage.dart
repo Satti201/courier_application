@@ -21,6 +21,8 @@ import '../UploadId/UploadId.dart';
 enum Page { dashboard, manage }
 
 class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -186,11 +188,7 @@ class _HomePageState extends State<HomePage> {
                             onPressed: null,
                             icon: const Icon(Icons.add),
                             label: const Text("Parcel")),
-                        subtitle: Text(
-                          '0',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: active, fontSize: 40.0),
-                        )),
+                        subtitle: Icon(Icons.inventory_2_outlined, size: 60)),
                   ),
                 ),
               ),
@@ -320,11 +318,7 @@ class _HomePageState extends State<HomePage> {
                             onPressed: null,
                             icon: const Icon(Icons.track_changes),
                             label: const Text("Add ID")),
-                        subtitle: Text(
-                          '${0}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: active, fontSize: 40.0),
-                        )),
+                        subtitle: Icon(Icons.image, size: 60,)),
                   ),
                 ),
               ),
@@ -335,12 +329,8 @@ class _HomePageState extends State<HomePage> {
                       title: TextButton.icon(
                           onPressed: null,
                           icon: const Icon(Icons.tag_faces),
-                          label: const Text("Sold")),
-                      subtitle: Text(
-                        '0',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: active, fontSize: 60.0),
-                      )),
+                          label: const Text("My Parcel")),
+                      subtitle: Icon(Icons.inventory_outlined, size: 60,)),
                 ),
               ),
               Padding(

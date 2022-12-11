@@ -19,6 +19,7 @@ class ParcelProvider with ChangeNotifier {
   TextEditingController ParcelPrice = TextEditingController();
   TextEditingController ReciverAddress = TextEditingController();
   TextEditingController Weight = TextEditingController();
+  TextEditingController ParcelInsurance = TextEditingController();
   TextEditingController Dimensions = TextEditingController();
   void AddParcel(context, String CategoryName, String RecieverId, int Count) async {
     print("&&&&&&&&&&"+Weight.text);
@@ -44,6 +45,7 @@ class ParcelProvider with ChangeNotifier {
           "ParcelStatus": 0,
           "RiderId": "",
           "Category": CategoryName,
+          "ParcelInsurance": ParcelInsurance.text,
 
         },
       ).then((value) async {
@@ -58,6 +60,7 @@ class ParcelProvider with ChangeNotifier {
         PickUpAddress.clear();
         ParcelOrderId.clear();
         ParcelCategory.clear();
+        ParcelInsurance.clear();
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomePage()));
       });
@@ -171,13 +174,14 @@ class ParcelProvider with ChangeNotifier {
             element.get("Weight"),
             element.get("Dimensions"),
           element.get("Category"),
+          element.get("ParcelInsurance"),
         );
         newList.add(parcelData);
       }
 
     }
     ParcelDataList = newList;
-    print(ParcelDataList.length);
+    print("Parcel Lenght777777777777777777777777777777"+ParcelDataList.length.toString());
   }
 
   List<ParcelData> get getReviewCartData {
