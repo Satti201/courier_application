@@ -279,7 +279,7 @@ class _CurrentLocationScreenState extends State<CurrentLocationScreen> {
                              title: Text("Confirm Cancel Parcel"),
                              content: Text("Are you sure you want to Cancel it?"),
                              actions: <Widget>[
-                               FlatButton(
+                               TextButton(
                                  child: Text("YES"),
                                  onPressed: () {
                                    parcelProvider.deleteParcelData();
@@ -287,7 +287,7 @@ class _CurrentLocationScreenState extends State<CurrentLocationScreen> {
                                    Get.to(()=> HomePage());
                                  },
                                ),
-                               FlatButton(
+                               TextButton(
                                  child: Text("NO"),
                                  onPressed: () {
                                    Navigator.of(context).pop();
@@ -310,7 +310,7 @@ class _CurrentLocationScreenState extends State<CurrentLocationScreen> {
                                title: Text("Start The Parcel Track"),
                                content: Text("Are you sure?"),
                                actions: <Widget>[
-                                 FlatButton(
+                                 TextButton(
                                    child: Text("YES"),
                                    onPressed: () {
                                      parcelProvider.confirmParcel(context, SignInProvider.UserId, widget.OrderId, widget.ParcelName, widget.ParcelAddress, widget.latitude, widget.Longitude, "Ongoing", "Time" , CurrentLocation_Lat , CurrentLocation_Long  );
@@ -318,7 +318,7 @@ class _CurrentLocationScreenState extends State<CurrentLocationScreen> {
 
                                    }
                                  ),
-                                 FlatButton(
+                                 TextButton(
                                    child: Text("NO"),
                                    onPressed: () {
                                      Navigator.of(context).pop();

@@ -36,7 +36,9 @@ class _ParcelState extends State<Parcel> {
                 parcelData.RecieverAddress,
                 parcelData.orderid,
                 parcelData.ParcelPrice,
-                parcelData.time,
+                parcelData.Weight,
+                parcelData.Dimensions
+
               ),
             );
           }

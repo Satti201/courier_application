@@ -20,6 +20,7 @@ class SignInProvider with ChangeNotifier{
   double longitude=0.0;
   double latitude=0.5;
   static String UserId = '';
+  static String Username = '';
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
@@ -50,6 +51,7 @@ class SignInProvider with ChangeNotifier{
             isvalcheck = true;
             SplashScreen.loggendIn = true;
             UserId = queryDocumentSnapshot.id;
+            Username = data['Username'];
             isloading = true;
          //   getCurrentPosition(context);
             Fluttertoast.showToast(msg: " User Login Successfully");

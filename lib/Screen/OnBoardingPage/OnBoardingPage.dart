@@ -36,13 +36,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 title: Text("Confirm Exit App"),
                 content: Text("Are you sure you want to exit app?"),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("YES"),
                     onPressed: () {
                       SystemNavigator.pop();
                     },
                   ),
-                  FlatButton(
+                  TextButton(
                     child: Text("NO"),
                     onPressed: () {
                       Navigator.of(context).pop();

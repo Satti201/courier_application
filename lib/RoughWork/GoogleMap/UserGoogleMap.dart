@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:geocoder/geocoder.dart';
+
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -58,11 +58,6 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
   late BitmapDescriptor sourceIcon;
   late BitmapDescriptor destinationIcon;
   late BitmapDescriptor origonIcon;
-  Set<Polygon> _polygons = Set<Polygon>();
-  List<LatLng> _polygonLatLngs = <LatLng>[];
-  Set<Polyline> _polylines = Set<Polyline>();
-  int _polygonIdCounter = 1;
-  int _polylineIdCounter = 1;
 
   Future<Position> _getUserCurrentLocation() async {
     await Geolocator.requestPermission()
@@ -76,20 +71,13 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
 
   final List<Marker> _markers = <Marker>[];
 
-  /*static List<Marker> list = const [
-    Marker(
-        markerId: MarkerId('1'),
-        position: LatLng(33.6844, 73.0479),
-        infoWindow: InfoWindow(title: 'some Info ')),
-  ];*/
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     //_markers.addAll(list);
     setState(() {
-      countdownDuration= Duration(minutes: int.parse(widget.time));
+      countdownDuration= Duration(minutes: 30);
     });
     startTimer();
     reset();
@@ -260,7 +248,7 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
                 title: const Text("Confirm Cancellation"),
                 content: const Text("Are you sure, you want to cancel this Parcel?"),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: const Text("YES"),
                     onPressed: () {
                       setState(() {
@@ -271,7 +259,7 @@ class _UserGoogleMapState extends State<UserGoogleMap> {
                       Navigator.of(context).pop();
                     },
                   ),
-                  FlatButton(
+                  TextButton(
                     child: const Text("NO"),
                     onPressed: () {
                       Navigator.of(context).pop();

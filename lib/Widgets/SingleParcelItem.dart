@@ -8,7 +8,7 @@ import 'package:courier_application/RoughWork/GoogleMap/UserGoogleMap.dart';
 import 'package:courier_application/Screen/UploadId/UploadId.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:geocoder/geocoder.dart';
+import 'package:geocode/geocode.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:jiffy/jiffy.dart';
@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../Provider/SignUpProvider.dart';
 
+import '../Screen/DetailMapShow/DetailMapShow.dart';
 import '../shared_components/async_button.dart';
 
 class SingleParcelItem extends StatefulWidget {
@@ -26,10 +27,12 @@ class SingleParcelItem extends StatefulWidget {
   String RecieverAddress;
   int orderid;
   String ParcelPrice;
-  String time;
+  String Weight;
+  String Dimensions;
+
 
   SingleParcelItem(this.ParcelName, this.PickupAddress, this.RecieverAddress,
-      this.orderid, this.ParcelPrice, this.time);
+      this.orderid, this.ParcelPrice, this.Weight, this.Dimensions);
 
   @override
   State<SingleParcelItem> createState() => _SingleParcelItemState();
@@ -41,6 +44,8 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
   bool valcheck = false;
   bool timeCheck = false;
   double? latitude;
+  var recieverlatitude,reciverlongitude;
+  var PickUplatitude,PickUpLongitude;
   File? imageFile;
   PickedFile? pickedFile;
   int Status = -0;
@@ -79,7 +84,7 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                   height: 10,
                 ),
                 Text(
-                  "Order Id# ${widget.orderid}",
+                  "Username : ${SignInProvider.Username}",
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -168,7 +173,7 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    FlatButton(
+                                    TextButton(
                                       child: const Text("Go To"),
                                       onPressed: () {
                                         Navigator.of(context).push(
@@ -177,7 +182,7 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                                                     const UploadId()));
                                       },
                                     ),
-                                    FlatButton(
+                                    TextButton(
                                       child: const Text("NO"),
                                       onPressed: () {
                                         Navigator.of(context).pop();
@@ -207,7 +212,7 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                                 content: const Text(
                                     "Your Request will be processed in given time!"),
                                 actions: <Widget>[
-                                  FlatButton(
+                                  TextButton(
                                     child: const Text("Go Back"),
                                     onPressed: () {
                                       Navigator.of(context).pop();
@@ -220,31 +225,40 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                     } else if (uploadIdProvider.status == 1) {
                       if (latitude == null && longitude == null) {
                         Fluttertoast.showToast(msg: "Invalid Location");
-                      } else {
-                        final queryPickupAddress =
-                            widget.PickupAddress.toString();
-                        var addresses = await Geocoder.local
-                            .findAddressesFromQuery(queryPickupAddress);
-                        var PickUpfirst = addresses.first;
+                      }
+                      else {
+                        GeoCode geoCode = GeoCode();
+                        GeoCode geoCode1 = GeoCode();
+                        try {
+                          Coordinates coordinates = await geoCode.forwardGeocoding(
+                              address: widget.PickupAddress.toString());
+                           PickUplatitude = coordinates.latitude ;
+                           PickUpLongitude = coordinates.longitude ;
 
-                        final queryDestinationAddress =
-                            widget.RecieverAddress.toString();
-                        var addresses1 = await Geocoder.local
-                            .findAddressesFromQuery(queryDestinationAddress);
-                        var RecieverAddressfirst = addresses1.first;
+                        } catch (e) {
+                          print(e);
+                        }
 
-                        print(
-                            "${PickUpfirst.featureName} : ${PickUpfirst.coordinates}");
+
+                        try {
+                          Coordinates coordinates1 = await geoCode1.forwardGeocoding(
+                              address: widget.RecieverAddress.toString());
+                           recieverlatitude = coordinates1.latitude;
+                           reciverlongitude = coordinates1.longitude;
+                        } catch (e) {
+                          print(e);
+                        }
+
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => UserGoogleMap(
-                                widget.time.toString(),
+                            builder: (context) => DetailMapShow(
+                                widget.Weight.toString(),
                                 latitude.toString(),
                                 longitude.toString(),
                                 "Username",
-                                PickUpfirst.coordinates.latitude,
-                                PickUpfirst.coordinates.longitude,
-                                RecieverAddressfirst.coordinates.latitude,
-                                RecieverAddressfirst.coordinates.longitude)));
+                                PickUplatitude,
+                                PickUpLongitude,
+                                recieverlatitude,
+                                reciverlongitude)));
                       }
                     }
                   }

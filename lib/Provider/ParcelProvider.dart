@@ -4,6 +4,7 @@ import 'package:courier_application/Screen/HomePage/HomePage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../Models/ParcelData.dart';
 import '../RoughWork/ConfirmParcel.dart';
@@ -12,21 +13,20 @@ import 'SignInProvider.dart';
 class ParcelProvider with ChangeNotifier {
   bool isloading = false;
   TextEditingController ParcelName = TextEditingController();
+  TextEditingController ParcelCategory = TextEditingController();
   TextEditingController PickUpAddress = TextEditingController();
   TextEditingController ParcelOrderId = TextEditingController();
   TextEditingController ParcelPrice = TextEditingController();
   TextEditingController ReciverAddress = TextEditingController();
-  TextEditingController Time = TextEditingController();
-
-  void AddParcel(context, String RecieverId, int Count) async {
-    print("&&&&&&&&&&"+Time.text);
+  TextEditingController Weight = TextEditingController();
+  TextEditingController Dimensions = TextEditingController();
+  void AddParcel(context, String CategoryName, String RecieverId, int Count) async {
+    print("&&&&&&&&&&"+Weight.text);
     if (ParcelName.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelName is Empty");
     } else if (PickUpAddress.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelAddress is Empty");
-    }else if(int.parse(Time.text)>30){
-      Fluttertoast.showToast(msg: "Time should be less then 30 min");
-    } else {
+    }else {
       await FirebaseFirestore.instance
           .collection("ParcelData")
           .doc(Count.toString())
@@ -38,10 +38,13 @@ class ParcelProvider with ChangeNotifier {
           "OrderId": Count,
           "RecieverId": RecieverId,
           "ReceiverAddress": ReciverAddress.text,
+          "Dimensions":Dimensions.text,
+          "Weight": Weight.text,
           "ParcelPrice": ParcelPrice.text,
-          "Time": Time.text,
           "ParcelStatus": 0,
-          "RiderId": ""
+          "RiderId": "",
+          "Category": CategoryName,
+
         },
       ).then((value) async {
         isloading = false;
@@ -49,10 +52,12 @@ class ParcelProvider with ChangeNotifier {
         await Fluttertoast.showToast(msg: "Successfully Add Parcel Data");
         ReciverAddress.clear();
         ParcelPrice.clear();
-        Time.clear();
+        Weight.clear();
+        Dimensions.clear();
         ParcelName.clear();
         PickUpAddress.clear();
         ParcelOrderId.clear();
+        ParcelCategory.clear();
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomePage()));
       });
@@ -136,19 +141,40 @@ class ParcelProvider with ChangeNotifier {
   List<ParcelData> ParcelDataList = [];
 
   void getParcelData() async {
+    //mylocation loc log
+    //forloop(pickup loc)
+    //
     List<ParcelData> newList = [];
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection("ParcelData").get();
     for (var element in snapshot.docs) {
-      ParcelData parcelData = ParcelData(
-        element.get("ParcelName"),
-        element.get('PickUpAddress'),
-        element.get('ReceiverAddress'),
-        element.get("OrderId"),
-        element.get("ParcelPrice"),
-        element.get("Time"),
-      );
-      newList.add(parcelData);
+      if(SignInProvider.UserId != element.get("PickUpId")){
+        //string value=element.get(pickupaddress)
+        /*GeoCode geoCode = GeoCode();
+        GeoCode geoCode1 = GeoCode();
+        try {
+          Coordinates coordinates = await geoCode.forwardGeocoding(
+              address:value;
+          PickUplatitude = coordinates.latitude ;
+          PickUpLongitude = coordinates.longitude ;
+
+        } catch (e) {
+          print(e);
+        }*/
+       // Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
+        ParcelData  parcelData = ParcelData(
+            element.get("ParcelName"),
+            element.get('PickUpAddress'),
+            element.get('ReceiverAddress'),
+            element.get("OrderId"),
+            element.get("ParcelPrice"),
+            element.get("Weight"),
+            element.get("Dimensions"),
+          element.get("Category"),
+        );
+        newList.add(parcelData);
+      }
+
     }
     ParcelDataList = newList;
     print(ParcelDataList.length);

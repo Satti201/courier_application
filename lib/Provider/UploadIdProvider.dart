@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_connect/http/src/response/response.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../Models/ParcelData.dart';
 import '../RoughWork/ConfirmParcel.dart';
@@ -16,10 +17,18 @@ class UploadIdProvider with ChangeNotifier {
   int status =-1;
   int hasData =0;
   String message = "";
+  List<Map> element=[
+    {
+      'image':'download.jpg',
+    },
+    {
+      'image':'john.jpg',
+    }
+  ];
   String mess="i am satti";
   String expTime="";
 
-  void UserUploadId(context, File Image, int Status) async {
+  void UserUploadId(context, List<XFile> Imagelist, int Status) async {
     DateTime now = DateTime.now();
     DateTime currDate = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
     DateTime expDate = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
@@ -27,8 +36,11 @@ class UploadIdProvider with ChangeNotifier {
 
     var request = http.MultipartRequest('POST',
         Uri.parse('https://kjugmth.sendnow.app/api/ImageAPI/UploadFiles'));
-    request.files.add(await http.MultipartFile.fromPath('', Image.path));
+    for(int i=0; i<Imagelist.length; i++){
 
+      request.files.add(await http.MultipartFile.fromPath('', Imagelist[i].path));
+
+    }
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
@@ -48,7 +60,8 @@ class UploadIdProvider with ChangeNotifier {
           "UserId": SignInProvider.UserId,
           "CurrDate": currDate.toString(),
           "ExpDate": expDate.toString(),
-          "UserImageId": message,
+          //"UserImageId": message,
+          'UserImageId': element,
           "Status": 0,
         }).then((value) async {
           await Fluttertoast.showToast(msg: "Upload Id Successfully");
@@ -59,6 +72,7 @@ class UploadIdProvider with ChangeNotifier {
       print(response.reasonPhrase);
     }
   }
+
 
   Future<int> getStatusOfId(String UserId) async {
     var collection = FirebaseFirestore.instance.collection('UserUploadId');

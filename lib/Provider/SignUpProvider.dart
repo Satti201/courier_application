@@ -2,12 +2,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
+import '../Screen/HomePage/HomePage.dart';
 import '../Screen/Login/LoginScreen.dart';
 import '../Service/auth_service.dart';
 
@@ -82,7 +84,8 @@ class SignUpProvider with ChangeNotifier{
           password.clear();
           PhoneNo.clear();
           await Fluttertoast.showToast(msg: "Successfully SignUp Data");
-          Navigator.of(context).pop();
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => HomePage()));
 
         });
         Get.to(()=>SignIn());

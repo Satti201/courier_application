@@ -46,7 +46,7 @@ class AdminState extends State<Admin> {
                       child: ListTile(
                           title: Center(
                             child: Center(
-                              child: FlatButton.icon(
+                              child: TextButton.icon(
                                   onPressed: null,
                                   icon: Icon(Icons.add),
                                   label: Text("Parcel" , style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold , color: Colors.redAccent),)),
@@ -65,7 +65,7 @@ class AdminState extends State<Admin> {
                     child: Card(
                       child: ListTile(
                           title: Center(
-                            child: FlatButton.icon(
+                            child: TextButton.icon(
                                 onPressed: null,
                                 icon: Icon(Icons.category),
                                 label: Text("Drivers",style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold , color: Colors.redAccent),)),
@@ -83,7 +83,7 @@ class AdminState extends State<Admin> {
                     child: Card(
                       child: ListTile(
                           title: Center(
-                            child: FlatButton.icon(
+                            child: TextButton.icon(
                                 onPressed: null,
                                 icon: Icon(Icons.track_changes),
                                 label: Text("Track ",style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold , color: Colors.redAccent),)),
@@ -97,7 +97,7 @@ class AdminState extends State<Admin> {
                   child: Card(
                     child: ListTile(
                         title: Center(
-                          child: FlatButton.icon(
+                          child: TextButton.icon(
                               onPressed: null,
                               icon: Icon(Icons.tag_faces),
                               label: Text("Sold",style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold , color: Colors.redAccent),)),
@@ -110,7 +110,7 @@ class AdminState extends State<Admin> {
                   child: Card(
                     child: ListTile(
                         title: Center(
-                          child: FlatButton.icon(
+                          child: TextButton.icon(
                               onPressed: null,
                               icon: Icon(Icons.shopping_cart),
                               label: Text("Orders",style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold , color: Colors.redAccent),)),
@@ -123,7 +123,7 @@ class AdminState extends State<Admin> {
                   child: Card(
                     child: ListTile(
                         title: Center(
-                          child: FlatButton.icon(
+                          child: TextButton.icon(
                               onPressed: null,
                               icon: Icon(Icons.close),
                               label: Text("Return",style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold , color: Colors.redAccent),)),

@@ -17,7 +17,10 @@ class UploadId extends StatefulWidget {
 }
 
 class _UploadIdState extends State<UploadId> {
-  File? imageFile;
+  //File? imageFile;
+  final ImagePicker imgpicker = ImagePicker();
+  List<XFile>? imageFiles;
+
   @override
   Widget build(BuildContext context) {
     UploadIdProvider uploadIdProvider = Provider.of(context);
@@ -30,10 +33,10 @@ class _UploadIdState extends State<UploadId> {
           child: MaterialButton(
             height: 45,
             onPressed: () {
-              if (imageFile == null) {
+              if (imageFiles == null) {
                 Fluttertoast.showToast(msg: "Please Add The Id");
               } else {
-                uploadIdProvider.UserUploadId(context, imageFile!, 0);
+                uploadIdProvider.UserUploadId(context, imageFiles!, 0);
               }
             },
             child: Text(
@@ -70,15 +73,39 @@ class _UploadIdState extends State<UploadId> {
                 radius: 150.0,
                 backgroundColor: Colors.white54,
                 child: ClipRRect(
-                  child: imageFile != null
+                  child: imageFiles != null?Wrap(
+                    children: imageFiles!.map((imageone){
+                      return Container(
+                          child:Card(
+                            child: Container(
+                              height: 100, width:100,
+                              child: Image.file(File(imageone.path)),
+                            ),
+                          )
+                      );
+                    }).toList(),
+                  ):const Text("Pick up the  image"),
+                  borderRadius: BorderRadius.circular(50.0),/*imageFile != null
                       ? Image.file(
                           imageFile!,
                           height: MediaQuery.of(context).size.height * 25,
                         )
                       : const Text("Pick up the  image"),
-                  borderRadius: BorderRadius.circular(50.0),
+                  borderRadius: BorderRadius.circular(50.0),*/
                 ),
               ),
+              /*child: imageFiles != null?Wrap(
+                children: imageFiles!.map((imageone){
+                  return Container(
+                      child:Card(
+                        child: Container(
+                          height: 100, width:100,
+                          child: Image.file(File(imageone.path)),
+                        ),
+                      )
+                  );
+                }).toList(),
+              ):Container(),*/
             ),
             const SizedBox(
               height: 20,
@@ -100,7 +127,7 @@ class _UploadIdState extends State<UploadId> {
   }
 
   Future getImage() async {
-    final pickedFile =
+    /*final pickedFile =
         await ImagePicker().getImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
@@ -108,6 +135,20 @@ class _UploadIdState extends State<UploadId> {
       } else {
         Fluttertoast.showToast(msg: "ID Image was not selected.");
       }
-    });
+    });*/
+
+    try {
+      var pickedfiles = await imgpicker.pickMultiImage();
+      //you can use ImageCourse.camera for Camera capture
+      if(pickedfiles != null){
+        imageFiles = pickedfiles;
+        setState(() {
+        });
+      }else{
+        print("No image is selected.");
+      }
+    }catch (e) {
+      print("error while picking file.");
+    }
   }
 }

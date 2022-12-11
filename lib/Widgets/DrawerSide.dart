@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:courier_application/Models/AllCategory.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 import 'package:courier_application/Provider/SignInProvider.dart';
@@ -10,6 +12,7 @@ import 'package:courier_application/Provider/UploadIdProvider.dart';
 import '../EditField/Colors.dart';
 import '../Models/AllUserData.dart';
 import '../Screen/HomePage/HomePage.dart';
+import '../Screen/Login/LoginScreen.dart';
 import '../Screen/Parcel/AddParcel.dart';
 import '../Screen/Parcel/Parcel.dart';
 import '../Screen/UploadId/UploadId.dart';
@@ -35,6 +38,8 @@ class _DrawerSideState extends State<DrawerSide> {
   }
 
   List<AllUserData> UserDataLists = [];
+
+  List<AllCategory> catList = [];
   Widget build(BuildContext context) {
     UploadIdProvider uploadIdProvider = Provider.of(context);
     Widget listTitle(IconData iconData, String title, Function ontap) {
@@ -123,11 +128,23 @@ class _DrawerSideState extends State<DrawerSide> {
                     newList.add(parcelData);
                   });
                   UserDataLists = newList;
+
+                  List<AllCategory> newCatList = [];
+                  QuerySnapshot snapshot1 =
+                  await FirebaseFirestore.instance.collection("ParcelCategory").get();
+                  for (var element in snapshot1.docs) {
+                    AllCategory categoryData = AllCategory(
+                      element.get("categoryId"),
+                      element.get('categoryName'),);
+                    newCatList.add(categoryData);
+                  }
+                  catList = newCatList;
+
                   check = true;
                 }
                 if (check == true) {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => AddParcel(UserDataLists)));
+                      builder: (context) => AddParcel(UserDataLists, catList)));
                 }
               }),
               listTitle(Icons.person_outlined, "Show Parcel", () {
@@ -214,7 +231,7 @@ class _DrawerSideState extends State<DrawerSide> {
                             content: const Text(
                                 "Your Request will be processed in given time!"),
                             actions: <Widget>[
-                              FlatButton(
+                              TextButton(
                                 child: const Text("Go Back"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
@@ -237,7 +254,7 @@ class _DrawerSideState extends State<DrawerSide> {
                             content: const Text(
                                 "Your ID request was Accepted! Image wil be shown here!"),
                             actions: <Widget>[
-                              FlatButton(
+                              TextButton(
                                 child: const Text("Go Back"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
@@ -253,6 +270,26 @@ class _DrawerSideState extends State<DrawerSide> {
               listTitle(Icons.star_outlined, "Rating & Review", () {}),
               listTitle(Icons.copy_outlined, "Raise a Complaint", () {}),
               listTitle(Icons.format_quote_outlined, "FAQs", () {}),
+              listTitle(Icons.copy_outlined, "Logout", () {
+                 AlertDialog(
+                  title: const Text("Confirm Logout"),
+                  content: const Text("Are you sure you want to Logout?"),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text("YES"),
+                      onPressed: () {
+                        Get.to(() => SignIn());
+                      },
+                    ),
+                    TextButton(
+                      child: const Text("NO"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                );
+              }),
               Container(
                 height: 350,
                 padding: EdgeInsets.symmetric(horizontal: 20),

@@ -84,7 +84,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
           prefixIcon: Padding(
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 15),
             child: Text(
-              " (+92) ",
+              "(+92)",
               style: TextStyle(color: Colors.white, fontSize: 17),
             ),
           ),
@@ -98,7 +98,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
                  buttonName = "Resend";
               });
               await authClass.verifyPhoneNumber(
-                  "+92${widget.phoneNo.text}", context, setData);
+                  "+92 ${widget.phoneNo.text}", context, setData);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),

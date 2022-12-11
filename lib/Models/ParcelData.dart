@@ -4,8 +4,13 @@ class ParcelData {
   String RecieverAddress;
   int orderid;
   String ParcelPrice;
-  String time;
-
+  String Weight;
+  String Dimensions;
+  String Category;
   ParcelData(this.ParcelName, this.PickUpAddress, this.RecieverAddress,
-      this.orderid, this.ParcelPrice, this.time);
+      this.orderid, this.Category, this.ParcelPrice, this.Weight, this.Dimensions);
+
+
+
+
 }
