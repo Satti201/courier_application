@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:courier_application/Models/image_upload.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -17,6 +18,9 @@ class UploadIdProvider with ChangeNotifier {
   int status =-1;
   int hasData =0;
   String message = "";
+
+  List<ImageModel> imageList=[];
+
   List<Map> element=[
     {
       'image':'download.jpg',
@@ -44,12 +48,16 @@ class UploadIdProvider with ChangeNotifier {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      String messa = await response.stream.bytesToString();
 
-      message=jsonDecode(messa);
+      List jsonResponse = jsonDecode(await response.stream.bytesToString());
+      imageList =jsonResponse.map((e) => ImageModel.fromJson(e)).toList();
+
+      //String messa = await response.stream.bytesToString();
+
+     // message=jsonDecode(messa);
       print("**************************************");
-      print(message);
-      if (message != null) {
+      print(imageList);
+      if (/*message != null*/imageList.isNotEmpty) {
         String id =
             FirebaseFirestore.instance.collection('UserUploadId').doc().id;
         await FirebaseFirestore.instance
@@ -61,7 +69,7 @@ class UploadIdProvider with ChangeNotifier {
           "CurrDate": currDate.toString(),
           "ExpDate": expDate.toString(),
           //"UserImageId": message,
-          'UserImageId': element,
+          'UserImageId': imageList.map((e) => e.toImageMap()).toList(),
           "Status": 0,
         }).then((value) async {
           await Fluttertoast.showToast(msg: "Upload Id Successfully");
