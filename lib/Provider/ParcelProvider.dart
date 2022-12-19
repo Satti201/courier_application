@@ -1,17 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:courier_application/Screen/HomePage/HomePage.dart';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:geolocator/geolocator.dart';
-
+import 'package:geocoding/geocoding.dart';
+import 'dart:math';
 import '../Models/ParcelData.dart';
 import '../RoughWork/ConfirmParcel.dart';
 import 'SignInProvider.dart';
 
 class ParcelProvider with ChangeNotifier {
   bool isloading = false;
+  String disInMiles = "1";
+  String myParcelStatus="0";
   TextEditingController ParcelName = TextEditingController();
   TextEditingController ParcelCategory = TextEditingController();
   TextEditingController PickUpAddress = TextEditingController();
@@ -21,32 +22,30 @@ class ParcelProvider with ChangeNotifier {
   TextEditingController Weight = TextEditingController();
   TextEditingController ParcelInsurance = TextEditingController();
   TextEditingController Dimensions = TextEditingController();
-  void AddParcel(context, String CategoryName, String RecieverId, int Count) async {
-    print("&&&&&&&&&&"+Weight.text);
+  void AddParcel(
+      context, String CategoryName, String RecieverId, int Count) async {
     if (ParcelName.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelName is Empty");
     } else if (PickUpAddress.text.isEmpty) {
       Fluttertoast.showToast(msg: "ParcelAddress is Empty");
-    }else {
-      await FirebaseFirestore.instance
-          .collection("ParcelData")
-          .doc(Count.toString())
-          .set(
+    } else {
+      String id = FirebaseFirestore.instance.collection('ParcelData').doc().id;
+      await FirebaseFirestore.instance.collection("ParcelData").doc(id).set(
         {
           "PickUpId": SignInProvider.UserId,
+          "Username": SignInProvider.Username,
           "ParcelName": ParcelName.text,
           "PickUpAddress": PickUpAddress.text,
           "OrderId": Count,
           "RecieverId": RecieverId,
           "ReceiverAddress": ReciverAddress.text,
-          "Dimensions":Dimensions.text,
+          "Dimensions": Dimensions.text,
           "Weight": Weight.text,
           "ParcelPrice": ParcelPrice.text,
           "ParcelStatus": 0,
           "RiderId": "",
           "Category": CategoryName,
           "ParcelInsurance": ParcelInsurance.text,
-
         },
       ).then((value) async {
         isloading = false;
@@ -62,7 +61,7 @@ class ParcelProvider with ChangeNotifier {
         ParcelCategory.clear();
         ParcelInsurance.clear();
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => HomePage()));
+            .push(MaterialPageRoute(builder: (context) => const HomePage()));
       });
     }
   }
@@ -143,51 +142,115 @@ class ParcelProvider with ChangeNotifier {
 
   List<ParcelData> ParcelDataList = [];
 
+  List<double> Distance1 = [];
+
   void getParcelData() async {
-    //mylocation loc log
-    //forloop(pickup loc)
-    //
     List<ParcelData> newList = [];
+    double? PickUplatitude, PickUpLongitude;
+    bool val = false;
+
+    /*if ((await Geolocator.isLocationServiceEnabled())) {
+      Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) async {
+        _currentPosition = position;
+        SignInProvider.latitude = _currentPosition.latitude;
+        SignInProvider.longitude = _currentPosition.longitude;
+      });}*/
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection("ParcelData").get();
     for (var element in snapshot.docs) {
-      if(SignInProvider.UserId != element.get("PickUpId")){
-        //string value=element.get(pickupaddress)
-        /*GeoCode geoCode = GeoCode();
-        GeoCode geoCode1 = GeoCode();
+      if (SignInProvider.UserId != element.get("PickUpId")) {
+        val=true;
         try {
-          Coordinates coordinates = await geoCode.forwardGeocoding(
-              address:value;
-          PickUplatitude = coordinates.latitude ;
-          PickUpLongitude = coordinates.longitude ;
+          double Distance = 0.0;
+          String value = element.get("PickUpAddress");
 
+          List<Location> locations = await locationFromAddress(value);
+
+          Location location;
+          location = locations[0];
+
+          PickUplatitude = location.latitude;
+          PickUpLongitude = location.longitude;
+
+          Distance += calculateDistance(SignInProvider.latitude,
+              SignInProvider.longitude, PickUplatitude, PickUpLongitude);
+
+          if (Distance <= double.parse(disInMiles)) {
+            ParcelData parcelData = ParcelData(
+              element.get("ParcelName"),
+              element.get("PickUpAddress"),
+              element.get("ReceiverAddress"),
+              element.get("OrderId"),
+              element.get("ParcelPrice"),
+              element.get("Weight"),
+              element.get("Dimensions"),
+              element.get("Category"),
+              element.get("ParcelInsurance"),
+              element.get("Username"),
+            );
+            newList.add(parcelData);
+          }
         } catch (e) {
           print(e);
-        }*/
-       // Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
-        ParcelData  parcelData = ParcelData(
-            element.get("ParcelName"),
-            element.get('PickUpAddress'),
-            element.get('ReceiverAddress'),
-            element.get("OrderId"),
-            element.get("ParcelPrice"),
-            element.get("Weight"),
-            element.get("Dimensions"),
-          element.get("Category"),
-          element.get("ParcelInsurance"),
-        );
-        newList.add(parcelData);
+        }
+      } else {
+        val == false;
+        print("Parcel not found");
       }
-
     }
     ParcelDataList = newList;
-    print("Parcel Lenght777777777777777777777777777777"+ParcelDataList.length.toString());
   }
 
   List<ParcelData> get getReviewCartData {
     getParcelData();
     return ParcelDataList;
   }
+
+  //my parcels
+  List<ParcelData> ParcelMyParcelDataList = [];
+
+  void getMyParcelData() async {
+    List<ParcelData> newList = [];
+    bool val = false;
+
+    QuerySnapshot snapshot =
+    await FirebaseFirestore.instance.collection("ParcelData").get();
+    for (var element in snapshot.docs) {
+      if (SignInProvider.UserId == element.get("PickUpId") && myParcelStatus==element.get("ParcelStatus")) {
+        try {
+          val=true;
+            ParcelData parcelData = ParcelData(
+              element.get("ParcelName"),
+              element.get("PickUpAddress"),
+              element.get("ReceiverAddress"),
+              element.get("OrderId"),
+              element.get("ParcelPrice"),
+              element.get("Weight"),
+              element.get("Dimensions"),
+              element.get("Category"),
+              element.get("ParcelInsurance"),
+              element.get("Username"),
+            );
+            newList.add(parcelData);
+        } catch (e) {
+          print(e);
+        }
+      } else {
+        val == false;
+        print("Parcel not found");
+      }
+    }
+    ParcelMyParcelDataList = newList;
+  }
+
+
+  List<ParcelData> get getReviewMyParcelData {
+    getMyParcelData();
+    print("My Parcel List Length"+ParcelMyParcelDataList.length.toString());
+    return ParcelMyParcelDataList;
+  }
+
 
   deleteParcelData() {
     FirebaseFirestore.instance
@@ -196,5 +259,14 @@ class ParcelProvider with ChangeNotifier {
         .delete();
 
     notifyListeners();
+  }
+
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    /*var p = 0.017453292519943295;
+    var a = 0.5 - cos((lat2 - lat1) * p)/2 +
+        cos(lat1 * p) * cos(lat2 * p) *
+            (1 - cos((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a));*/
+    return sqrt((lat2 - lat1) * (lat2 - lat1) + (lon2 - lon1) * (lon2 - lon1));
   }
 }

@@ -17,8 +17,8 @@ import '../Screen/Splash.dart';
 class SignInProvider with ChangeNotifier{
 
   bool  isloading =false;
-  double longitude=0.0;
-  double latitude=0.5;
+  static double longitude=0.0;
+  static double latitude=0.5;
   static String UserId = '';
   static String Username = '';
   TextEditingController email = TextEditingController();
@@ -53,7 +53,7 @@ class SignInProvider with ChangeNotifier{
             UserId = queryDocumentSnapshot.id;
             Username = data['Username'];
             isloading = true;
-         //   getCurrentPosition(context);
+            getCurrentPosition(context);
             Fluttertoast.showToast(msg: " User Login Successfully");
             email.clear();
             password.clear();

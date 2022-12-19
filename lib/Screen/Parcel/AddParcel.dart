@@ -1,12 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:courier_application/Models/AllCategory.dart';
 import 'package:courier_application/Provider/CategoryProvider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import '../../EditField/Colors.dart';
@@ -16,7 +12,6 @@ import '../../Provider/SignInProvider.dart';
 import '../../Widgets/DrawerSide.dart';
 import '../../shared_components/async_button.dart';
 import '../../shared_components/header_text.dart';
-import '../Login/LoginScreen.dart';
 
 const kDefaultSpacing = 16.0;
 const kBorderRadius = 16.0;
@@ -32,7 +27,6 @@ class AddParcel extends StatefulWidget {
 }
 
 class _AddParcelState extends State<AddParcel> {
-  final _AddCategoryFormKey = GlobalKey<FormState>();
   final isLoading = false;
   AllUserData? value;
   AllCategory? value1;

@@ -29,10 +29,10 @@ class SingleParcelItem extends StatefulWidget {
   String ParcelPrice;
   String Weight;
   String Dimensions;
-
+  String username;
 
   SingleParcelItem(this.ParcelName, this.PickupAddress, this.RecieverAddress,
-      this.orderid, this.ParcelPrice, this.Weight, this.Dimensions);
+      this.orderid, this.ParcelPrice, this.Weight, this.Dimensions, this.username);
 
   @override
   State<SingleParcelItem> createState() => _SingleParcelItemState();
@@ -84,7 +84,7 @@ class _SingleParcelItemState extends State<SingleParcelItem> {
                   height: 10,
                 ),
                 Text(
-                  "Username : ${SignInProvider.Username}",
+                  "Username : ${widget.username}",
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,

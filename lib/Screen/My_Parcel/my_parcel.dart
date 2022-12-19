@@ -6,38 +6,38 @@ import '../../Provider/ParcelProvider.dart';
 import '../../Widgets/DrawerSide.dart';
 import '../../Widgets/SingleParcelItem.dart';
 
-class Parcel extends StatefulWidget {
-  const Parcel({Key? key}) : super(key: key);
+class MyParcel extends StatefulWidget {
+  const MyParcel({Key? key}) : super(key: key);
 
   @override
-  State<Parcel> createState() => _ParcelState();
+  State<MyParcel> createState() => _MyParcelState();
 }
 
-class _ParcelState extends State<Parcel> {
+class _MyParcelState extends State<MyParcel> {
 
 
 
-  late String initialDist;
-  List<String> disList=["1", "2", "10"];
+  late String initialParcelStatus;
+  List<String> myParcelList=["0", "1", "2", "3"];
 
   @override
   void initState() {
     super.initState();
     // TODO: implement initState
-    initialDist=disList.first;
+    initialParcelStatus=myParcelList.first;
   }
 
   @override
   Widget build(BuildContext context) {
     ParcelProvider parcelProvider = Provider.of(context);
-    parcelProvider.getParcelData();
+    parcelProvider.getMyParcelData();
     return Scaffold(
       drawer: DrawerSide(),
       appBar: AppBar(
         backgroundColor: scaffoldbackgroundColor,
         iconTheme: IconThemeData(color: textColor),
         title: const Text(
-          "Parcels",
+          "My Parcels",
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -57,27 +57,28 @@ class _ParcelState extends State<Parcel> {
                     color: Colors.black54,
                   ),
                 ),
+
                 DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     hint: const Text('Select Category'),
                     dropdownColor: Colors.white,
-                    value: initialDist,
+                    value: initialParcelStatus,
                     icon: const Icon(Icons.keyboard_arrow_down),
-                    items: disList.map(
+                    items: myParcelList.map(
                           (String item) => DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
+                        value: item,
+                        child: Text(
+                          item,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
-                        )
+                        ),
+                      ),
+                    )
                         .toList(),
                     onChanged: (value) => setState(() {
-                      initialDist = value!;
+                      initialParcelStatus = value!;
                     }),
                   ),
                 ),
@@ -88,22 +89,23 @@ class _ParcelState extends State<Parcel> {
             height: 10,
           ),
           ListView.builder(
-            shrinkWrap: true,
-              itemCount: parcelProvider.getReviewCartData.length,
+              shrinkWrap: true,
+              itemCount: parcelProvider.getReviewMyParcelData.length,
               itemBuilder: (context, index) {
-              parcelProvider.disInMiles=initialDist;
-                ParcelData parcelData = parcelProvider.getReviewCartData[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SingleParcelItem(
+                parcelProvider.myParcelStatus=initialParcelStatus;
+                ParcelData parcelData = parcelProvider.getReviewMyParcelData[index];
+                return ListTile(
+                  title: Text(
                     parcelData.ParcelName,
-                    parcelData.PickUpAddress,
-                    parcelData.RecieverAddress,
-                    parcelData.orderid,
-                    parcelData.ParcelPrice,
-                    parcelData.Weight,
-                    parcelData.Dimensions,
-                    parcelData.username,
+                    textScaleFactor: 1.5,
+                  ),
+                  subtitle: Row(
+                    children: [
+                      Text("Insurance: "+parcelData.Insurance),
+                      Text("Parcel Price: "+parcelData.ParcelPrice),
+                      Text("PickUp Address: "+parcelData.PickUpAddress, maxLines: 3,),
+                      Text("Receiver Address: "+parcelData.RecieverAddress, maxLines: 3,),
+                    ],
                   ),
                 );
               }),
