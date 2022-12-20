@@ -151,6 +151,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     onPressed: (){
+                      signUpProvider.getCurrentPositionf();
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PhoneAuthentication(
                         signUpProvider.PhoneNo,
                         signUpProvider,

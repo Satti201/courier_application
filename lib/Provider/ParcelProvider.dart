@@ -12,7 +12,7 @@ import 'SignInProvider.dart';
 class ParcelProvider with ChangeNotifier {
   bool isloading = false;
   String disInMiles = "1";
-  String myParcelStatus="0";
+  String myParcelStatus = "0";
   TextEditingController ParcelName = TextEditingController();
   TextEditingController ParcelCategory = TextEditingController();
   TextEditingController PickUpAddress = TextEditingController();
@@ -160,7 +160,7 @@ class ParcelProvider with ChangeNotifier {
         await FirebaseFirestore.instance.collection("ParcelData").get();
     for (var element in snapshot.docs) {
       if (SignInProvider.UserId != element.get("PickUpId")) {
-        val=true;
+        val = true;
         try {
           double Distance = 0.0;
           String value = element.get("PickUpAddress");
@@ -215,11 +215,12 @@ class ParcelProvider with ChangeNotifier {
     bool val = false;
 
     QuerySnapshot snapshot =
-    await FirebaseFirestore.instance.collection("ParcelData").get();
+        await FirebaseFirestore.instance.collection("ParcelData").get();
     for (var element in snapshot.docs) {
-      if (SignInProvider.UserId == element.get("PickUpId") && myParcelStatus==element.get("ParcelStatus")) {
-        try {
-          val=true;
+      if (SignInProvider.UserId == element.get("PickUpId")) {
+        if (myParcelStatus == element.get("ParcelStatus")) {
+          try {
+            val = true;
             ParcelData parcelData = ParcelData(
               element.get("ParcelName"),
               element.get("PickUpAddress"),
@@ -233,8 +234,9 @@ class ParcelProvider with ChangeNotifier {
               element.get("Username"),
             );
             newList.add(parcelData);
-        } catch (e) {
-          print(e);
+          } catch (e) {
+            print(e);
+          }
         }
       } else {
         val == false;
@@ -244,13 +246,11 @@ class ParcelProvider with ChangeNotifier {
     ParcelMyParcelDataList = newList;
   }
 
-
   List<ParcelData> get getReviewMyParcelData {
     getMyParcelData();
-    print("My Parcel List Length"+ParcelMyParcelDataList.length.toString());
+    print("My Parcel List Length" + ParcelMyParcelDataList.length.toString());
     return ParcelMyParcelDataList;
   }
-
 
   deleteParcelData() {
     FirebaseFirestore.instance

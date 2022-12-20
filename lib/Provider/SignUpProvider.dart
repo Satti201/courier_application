@@ -77,7 +77,7 @@ class SignUpProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getCurrentPosition() async {
+  Future<void> getCurrentPositionf() async {
     LocationPermission permission;
     bool serviceEnabled;
     // Test if location services are enabled.

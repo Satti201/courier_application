@@ -8,20 +8,23 @@ import 'package:otp_text_field/style.dart';
 import '../../EditField/Colors.dart';
 import '../../Provider/SignUpProvider.dart';
 import '../../Service/auth_service.dart';
+
 const kDefaultSpacing = 16.0;
 const kBorderRadius = 16.0;
+
 class PhoneAuthentication extends StatefulWidget {
   TextEditingController phoneNo;
   SignUpProvider signUpProvider;
   String Gender;
-  PhoneAuthentication(this.phoneNo, this.signUpProvider , this.Gender);
+  PhoneAuthentication(this.phoneNo, this.signUpProvider, this.Gender, {Key? key}) : super(key: key);
 
   @override
   State<PhoneAuthentication> createState() => _PhoneAuthenticationState();
 }
+
 class _PhoneAuthenticationState extends State<PhoneAuthentication> {
   @override
-  int start = 30;
+  int start = 45;
   bool wait = false;
   String buttonName = "Send";
   TextEditingController phoneController = TextEditingController();
@@ -43,6 +46,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
       }
     });
   }
+
   Widget otpField() {
     return OTPTextField(
       length: 6,
@@ -52,7 +56,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
         backgroundColor: Colors.deepOrange,
         borderColor: Colors.white,
       ),
-      style: TextStyle(fontSize: 17, color: Colors.white),
+      style: const TextStyle(fontSize: 17, color: Colors.white),
       textFieldAlignment: MainAxisAlignment.spaceAround,
       fieldStyle: FieldStyle.underline,
       onCompleted: (pin) {
@@ -63,6 +67,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
       },
     );
   }
+
   Widget textField() {
     return Container(
       width: MediaQuery.of(context).size.width - 40,
@@ -73,16 +78,16 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
       ),
       child: TextFormField(
         controller: widget.phoneNo,
-        style: TextStyle(color: Colors.white, fontSize: 17),
+        style: const TextStyle(color: Colors.white, fontSize: 17),
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Enter your phone Number",
-          hintStyle: TextStyle(color: Colors.white54, fontSize: 17),
+          hintStyle: const TextStyle(color: Colors.white54, fontSize: 17),
           contentPadding:
-          const EdgeInsets.symmetric(vertical: 19, horizontal: 8),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 15),
+              const EdgeInsets.symmetric(vertical: 19, horizontal: 8),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),
             child: Text(
               "(+92)",
               style: TextStyle(color: Colors.white, fontSize: 17),
@@ -92,14 +97,14 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
             onTap: wait
                 ? null
                 : () async {
-              setState(() {
-                start = 30;
-                wait = true;
-                 buttonName = "Resend";
-              });
-              await authClass.verifyPhoneNumber(
-                  "+92 ${widget.phoneNo.text}", context, setData);
-            },
+                    setState(() {
+                      start = 30;
+                      wait = true;
+                      buttonName = "Resend";
+                    });
+                    await authClass.verifyPhoneNumber(
+                        "+92 ${widget.phoneNo.text}", context, setData);
+                  },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
               child: Text(
@@ -116,6 +121,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
       ),
     );
   }
+
   void setData(String verificationId) {
     setState(() {
       verificationIdFinal = verificationId;
@@ -123,13 +129,16 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
     startTimer();
   }
 
-
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: scaffoldbackgroundColor,
         iconTheme: IconThemeData(color: textColor),
-        title: Text("Phone Authentication", style: TextStyle(color: Colors.black),),
+        title: const Text(
+          "Phone Authentication",
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       backgroundColor: Colors.white,
       body: Container(
@@ -137,9 +146,8 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
         width: MediaQuery.of(context).size.width,
         child: SingleChildScrollView(
           child: Column(
-
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 80,
               ),
               textField(),
@@ -157,7 +165,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
                         margin: EdgeInsets.symmetric(horizontal: 12),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "Enter 6 digit OTP",
                       style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
@@ -171,37 +179,37 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               otpField(),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               RichText(
                   text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Send OTP again in ",
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                      TextSpan(
-                        text: "00:$start",
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                      TextSpan(
-                        text: " sec ",
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                    ],
-                  )),
-              SizedBox(
+                children: [
+                  const TextSpan(
+                    text: "Send OTP again in ",
+                    style: TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                  TextSpan(
+                    text: "00:$start",
+                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                  const TextSpan(
+                    text: " sec ",
+                    style: TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                ],
+              )),
+              const SizedBox(
                 height: 200,
               ),
               InkWell(
                 onTap: () {
-                  authClass.signInwithPhoneNumber(
-                      verificationIdFinal, smsCode, context , widget.signUpProvider , widget.Gender);
+                  authClass.signInwithPhoneNumber(verificationIdFinal, smsCode,
+                      context, widget.signUpProvider, widget.Gender);
                 },
                 child: Container(
                   height: 60,
@@ -209,7 +217,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
                   decoration: BoxDecoration(
                       color: Color(0xffff9601),
                       borderRadius: BorderRadius.circular(15)),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       "Lets Go",
                       style: TextStyle(

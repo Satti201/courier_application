@@ -18,8 +18,6 @@ class _MyParcelState extends State<MyParcel> {
 
 
 
- late ParcelProvider parcelProvider;
-
   late String initialParcelStatus;
   List<String> myParcelList=["0", "1", "2", "3"];
 
@@ -28,13 +26,11 @@ class _MyParcelState extends State<MyParcel> {
     super.initState();
     // TODO: implement initState
     initialParcelStatus=myParcelList.first;
-    parcelProvider.myParcelStatus=initialParcelStatus;
-    parcelProvider.getMyParcelData();
   }
 
   @override
   Widget build(BuildContext context) {
-     parcelProvider = Provider.of(context);
+    ParcelProvider   parcelProvider = Provider.of(context);
     parcelProvider.getMyParcelData();
     return Scaffold(
       drawer: DrawerSide(),
